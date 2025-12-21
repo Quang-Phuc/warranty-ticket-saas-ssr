@@ -1,7 +1,64 @@
+<!-- src/app/features/auth-pages/pages/login/login.page.html -->
 <div class="wrap">
+  <div class="background">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+
   <div class="card">
-    <h1>Login</h1>
-    <p class="sub">Demo login (mock token). Replace with real auth later.</p>
-    <ui-button (click)="login()">Continue</ui-button>
+    <div class="logo">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="30" stroke="url(#gradient)" stroke-width="4" opacity="0.8"/>
+        <path d="M18 32 L28 42 L46 22" stroke="url(#gradient)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff9a9e"/>
+            <stop offset="100%" stop-color="#fad0c4"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <h1 class="title">Welcome Back</h1>
+    <p class="subtitle">Sign in to access your account</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
+      <div class="input-group">
+        <input type="text" placeholder="Username" formControlName="username" class="input" />
+      </div>
+
+      <div class="input-group">
+        <input type="password" placeholder="Password" formControlName="password" class="input" />
+      </div>
+
+      <div class="actions">
+        <div class="remember-forgot">
+          <label class="checkbox-label">
+            <input type="checkbox" />
+            <span>Remember me</span>
+          </label>
+          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        </div>
+      </div>
+
+      <ng-container *ngIf="errorMessage()">
+        <p class="error-text">{{ errorMessage() }}</p>
+      </ng-container>
+
+      <div class="button-wrapper">
+        <ui-button
+          class="login-btn"
+          [loading]="loading()"
+          type="submit"
+          [disabled]="loading()">
+          Sign In
+        </ui-button>
+      </div>
+    </form>
+
+    <div class="footer-text">
+      <span>Don't have an account? <a routerLink="/register">Sign up</a></span>
+    </div>
   </div>
 </div>

@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+// src/app/shared/ui/components/button/button.component.ts
+import { Component, Input, booleanAttribute } from '@angular/core';
 
 @Component({
   selector: 'ui-button',
@@ -9,4 +10,7 @@ import { Component, Input } from '@angular/core';
 export class ButtonComponent {
   @Input() variant: 'primary' | 'ghost' = 'primary';
   @Input() disabled = false;
+
+  // Thêm input loading mới
+  @Input({ transform: booleanAttribute }) loading = false;
 }

@@ -1,16 +1,58 @@
+// src/app/shared/ui/components/button/button.component.scss
 @use '../../../../styles/variables' as *;
 
 .btn {
-  padding: 10px 14px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 20px; /* Tăng padding cho đẹp hơn */
   border-radius: $radius;
   border: $border;
   background: $surface-2;
   color: inherit;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn--ghost {
   background: transparent;
+  border-color: transparent;
 }
 
-.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn__content {
+  transition: opacity 0.2s ease;
+
+  &--hidden {
+    opacity: 0;
+  }
+}
+
+.btn__spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: spin 1s linear infinite;
+  transition: opacity 0.2s ease;
+
+  &--visible {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

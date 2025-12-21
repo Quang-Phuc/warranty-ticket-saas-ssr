@@ -1,5 +1,98 @@
-@use '../../../../styles/mixins' as *;
+.form {
+  width: 100%;
+  margin-top: 24px;
+}
 
-.wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-.card { @include card; padding: 18px; width: min(520px, 100%); }
-.sub { opacity: .75; }
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #ff9a9e;
+    box-shadow: 0 0 0 3px rgba(255, 154, 158, 0.2);
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+
+  input[type="checkbox"] {
+    accent-color: #ff9a9e;
+  }
+}
+
+.forgot-link {
+  color: #fad0c4;
+  font-size: 14px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.error-text {
+  color: #ff6b6b;
+  font-size: 14px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+.footer-text a {
+  color: #fad0c4;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .card {
+    padding: 40px 24px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .forgot-link {
+    align-self: flex-end;
+  }
+}
