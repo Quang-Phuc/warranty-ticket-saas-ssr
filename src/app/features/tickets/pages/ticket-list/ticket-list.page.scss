@@ -1,0 +1,10 @@
+@use '../../../../styles/mixins' as *;
+
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.link { text-decoration: none; opacity: .9; }
+
+.list { display: grid; gap: 10px; margin-top: 12px; }
+.item { @include card; padding: 12px; text-decoration: none; display: grid; gap: 6px; }
+.title { font-weight: 650; }
+.meta { display: flex; gap: 10px; align-items: center; opacity: .85; }
+.id { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }

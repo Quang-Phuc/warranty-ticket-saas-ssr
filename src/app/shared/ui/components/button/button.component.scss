@@ -1,0 +1,16 @@
+@use '../../../../styles/variables' as *;
+
+.btn {
+  padding: 10px 14px;
+  border-radius: $radius;
+  border: $border;
+  background: $surface-2;
+  color: inherit;
+  cursor: pointer;
+}
+
+.btn--ghost {
+  background: transparent;
+}
+
+.btn:disabled { opacity: .6; cursor: not-allowed; }

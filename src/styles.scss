@@ -1,0 +1,15 @@
+@use './app/styles/variables' as *;
+@use './app/styles/mixins' as *;
+@use './app/styles/theme' as *;
+
+/* Minimal global reset */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #0b0f14;
+  color: #e7eef7;
+}
+
+a { color: inherit; }

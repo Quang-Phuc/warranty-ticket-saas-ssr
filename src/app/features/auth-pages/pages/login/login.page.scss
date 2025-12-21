@@ -1,0 +1,5 @@
+@use '../../../../styles/mixins' as *;
+
+.wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.card { @include card; padding: 18px; width: min(520px, 100%); }
+.sub { opacity: .75; }

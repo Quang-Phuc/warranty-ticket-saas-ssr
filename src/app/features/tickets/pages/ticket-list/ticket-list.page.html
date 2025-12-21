@@ -1,0 +1,14 @@
+<div class="row">
+  <h1>Tickets</h1>
+  <a class="link" routerLink="/app/tickets/new">+ New ticket</a>
+</div>
+
+<div class="list">
+  <a class="item" *ngFor="let t of tickets" [routerLink]="['/app/tickets', t.id]">
+    <div class="title">{{ t.title }}</div>
+    <div class="meta">
+      <ticket-status-badge [status]="t.status" />
+      <span class="id">{{ t.id }}</span>
+    </div>
+  </a>
+</div>

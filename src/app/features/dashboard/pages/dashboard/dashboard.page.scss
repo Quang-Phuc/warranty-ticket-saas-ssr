@@ -1,0 +1,6 @@
+@use '../../../../styles/mixins' as *;
+
+.muted { opacity: .75; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card { @include card; padding: 14px; }
+@media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
