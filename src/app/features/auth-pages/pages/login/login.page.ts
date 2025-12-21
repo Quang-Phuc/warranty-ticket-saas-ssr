@@ -5,16 +5,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../../core/auth/auth.service';
 import { AuthFacade } from '../../data-access';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    // InputComponent nếu có
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss'
 })
@@ -35,7 +30,7 @@ export class LoginPage {
 
   onSubmit() {
     if (this.loginForm.invalid) {
-      this.errorMessage.set('Vui lòng nhập đầy đủ thông tin.');
+      this.errorMessage.set('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
       return;
     }
 
@@ -47,26 +42,24 @@ export class LoginPage {
     this.authFacade.login({ username: username!, password: password! }).subscribe({
       next: (response) => {
         if (response.result === 'success' && response.data) {
-          const loginData = response.data;
           this.authService.loginSuccess(
-            loginData.accessToken,
-            loginData.refreshToken,
-            loginData.user
+            response.data.accessToken,
+            response.data.refreshToken,
+            response.data.user
           );
           this.router.navigateByUrl('/app');
         } else {
-          this.errorMessage.set(response.message || 'Đăng nhập thất bại.');
+          this.errorMessage.set(response.message || 'Đăng nhập không thành công.');
         }
         this.loading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message || 'Lỗi kết nối server.');
+        this.errorMessage.set(err.error?.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
         this.loading.set(false);
       }
     });
   }
 
-  // Giữ lại để demo nhanh nếu cần
   mockLogin() {
     this.authService.mockLogin();
     this.router.navigateByUrl('/app');
