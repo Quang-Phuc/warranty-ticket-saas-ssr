@@ -1,20 +1,25 @@
-# warranty-ticket-saas-ssr (Angular SSR)
+# Angular 19 Material Theming Example
 
-## Quick start
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.5.
 
-```bash
-npm i
-npm run start
-```
+## Development server
 
-## SSR build & serve
+To start a local development server, run:
 
 ```bash
-npm run build
-npm run serve:ssr
+ng serve
 ```
 
-## Notes
-- This repo is a **starter skeleton** with a domain-first folder structure (features/core/shared) and SSR-safe patterns.
-- All components use **separate** `.html` and `.scss` files.
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## How to add theming?
+
+See the commit history to see each step in this process,
+
+Commits: <https://github.com/sravimohan/angular-19-material-theming/commits/main/>
+
+
+
+## Angular 19 Material Theming Guide
+
+<https://material.angular.io/guide/theming>
