@@ -1,5 +1,8 @@
-import { bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication, type BootstrapContext } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { appServerConfig } from './app/app.config.server';
 
-export default () => bootstrapApplication(AppComponent, appServerConfig);
+// IMPORTANT: SSR must pass BootstrapContext, otherwise NG0401 Missing Platform
+export default function bootstrap(context: BootstrapContext) {
+  return bootstrapApplication(AppComponent, appServerConfig, context);
+}
