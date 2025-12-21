@@ -9,7 +9,12 @@ import { TicketStatusBadgeComponent } from '../../ui/ticket-status-badge/ticket-
   styleUrl: './ticket-detail.page.scss'
 })
 export class TicketDetailPage {
-  id = this.route.snapshot.paramMap.get('id') ?? '';
+  id = '';
   status: any = 'RECEIVED';
+
   constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.id = this.route.snapshot.paramMap.get('id') ?? '';
+  }
 }
