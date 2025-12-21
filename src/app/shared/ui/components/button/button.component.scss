@@ -1,58 +1,80 @@
 // src/app/shared/ui/components/button/button.component.scss
 @use '../../../../styles/variables' as *;
 
+:host {
+  display: block; // Cho phép custom component nhận width 100% từ bên ngoài
+  width: 100%;
+}
+
 .btn {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 12px 20px; /* Tăng padding cho đẹp hơn */
-  border-radius: $radius;
-  border: $border;
-  background: $surface-2;
-  color: inherit;
-  font-weight: 600;
+  padding: 16px 32px;
+  border-radius: 16px;
+  border: none;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  width: 100%; // Đảm bảo thẻ button giãn hết Host
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+  color: #0f0f1a;
+  box-shadow: 0 10px 30px rgba(255, 154, 158, 0.45);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 45px rgba(255, 154, 158, 0.65);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .btn__spinner {
+    border-top-color: #0f0f1a;
   }
 }
 
 .btn--ghost {
   background: transparent;
-  border-color: transparent;
+  border: $border;
+  color: inherit;
+  box-shadow: none;
+
+  .btn__spinner {
+    border-top-color: currentColor;
+  }
 }
 
 .btn__content {
-  transition: opacity 0.2s ease;
-
-  &--hidden {
-    opacity: 0;
-  }
+  transition: opacity 0.25s ease;
+  &--hidden { opacity: 0; }
 }
 
 .btn__spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid transparent;
-  border-top-color: currentColor;
+  width: 22px;
+  height: 22px;
+  border: 3px solid transparent;
+  border-top-color: white;
   border-radius: 50%;
   opacity: 0;
   animation: spin 1s linear infinite;
-  transition: opacity 0.2s ease;
-
-  &--visible {
-    opacity: 1;
-  }
+  transition: opacity 0.25s ease;
+  &--visible { opacity: 1; }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }

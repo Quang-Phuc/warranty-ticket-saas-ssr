@@ -1,6 +1,7 @@
 <!-- src/app/shared/ui/components/button/button.component.html -->
 <button
   class="btn"
+  [class.btn--primary]="variant === 'primary'"
   [class.btn--ghost]="variant === 'ghost'"
   [disabled]="disabled || loading"
   type="button">
@@ -9,6 +10,5 @@
     <ng-content></ng-content>
   </span>
 
-  <!-- Spinner loading -->
   <span class="btn__spinner" [class.btn__spinner--visible]="loading"></span>
 </button>

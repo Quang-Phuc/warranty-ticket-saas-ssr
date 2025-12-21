@@ -1,62 +1,24 @@
-<!-- src/app/features/auth-pages/pages/login/login.page.html -->
 <div class="wrap">
-  <div class="background">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-    <div class="blob blob3"></div>
-  </div>
-
   <div class="card">
-    <div class="logo">
-      <svg width="80" height="80" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="30" stroke="url(#gradient)" stroke-width="4" opacity="0.9"/>
-        <path d="M16 32 L26 42 L48 20" stroke="url(#gradient)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M20 24 L24 28" stroke="url(#gradient)" stroke-width="4" stroke-linecap="round"/>
-        <path d="M44 24 L40 28" stroke="url(#gradient)" stroke-width="4" stroke-linecap="round"/>
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ff9a9e"/>
-            <stop offset="100%" stop-color="#fad0c4"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-
     <h1 class="title">Chào mừng trở lại</h1>
-    <p class="subtitle">Đăng nhập để quản lý bảo hành, sửa chữa và chăm sóc khách hàng tốt hơn</p>
+    <p class="subtitle">Đăng nhập để quản lý bảo hành và sửa chữa chuyên nghiệp hơn</p>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
       <div class="input-group">
-        <input
-          type="text"
-          placeholder="Tên đăng nhập hoặc Email"
-          formControlName="username"
-          class="input"
-          autocomplete="username"
-        />
+        <input type="text" placeholder="Tên đăng nhập hoặc Email" formControlName="username" class="input" />
       </div>
 
       <div class="input-group">
-        <input
-          type="password"
-          placeholder="Mật khẩu"
-          formControlName="password"
-          class="input"
-          autocomplete="current-password"
-        />
+        <input type="password" placeholder="Mật khẩu" formControlName="password" class="input" />
       </div>
 
       <div class="actions">
-        <label class="checkbox-label">
-          <input type="checkbox" />
-          <span>Duy trì đăng nhập</span>
+        <label class="remember-me">
+          <input type="checkbox" formControlName="remember">
+          <span>Ghi nhớ</span>
         </label>
         <a routerLink="/forgot-password" class="forgot-link">Quên mật khẩu?</a>
       </div>
-
-      <ng-container *ngIf="errorMessage()">
-        <p class="error-text">{{ errorMessage() }}</p>
-      </ng-container>
 
       <div class="button-wrapper">
         <ui-button
@@ -79,8 +41,6 @@
         <li>Quản lý bảo hành theo Serial / IMEI / QR / Tem</li>
         <li>Tiếp nhận – Sửa chữa – Bàn giao bằng Ticket chuẩn hóa</li>
         <li>Portal tra cứu dành riêng cho khách hàng cuối</li>
-        <li>Cấu hình linh hoạt: Workflow, trường dữ liệu, SLA, báo cáo</li>
-        <li>Giảm thất thoát – Tăng tốc xử lý – Nâng cao chất lượng CSKH</li>
       </ul>
     </div>
   </div>

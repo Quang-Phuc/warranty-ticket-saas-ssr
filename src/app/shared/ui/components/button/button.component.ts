@@ -10,7 +10,5 @@ import { Component, Input, booleanAttribute } from '@angular/core';
 export class ButtonComponent {
   @Input() variant: 'primary' | 'ghost' = 'primary';
   @Input() disabled = false;
-
-  // Thêm input loading mới
   @Input({ transform: booleanAttribute }) loading = false;
 }
