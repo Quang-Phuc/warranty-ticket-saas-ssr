@@ -12,7 +12,8 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
 import { AuthApiService } from '../../data-access/auth-api.service';
-import { IndustriesService, IndustryOption } from '../../data-access/industries.service';
+
+type IndustryOption = { value: string; label: string };
 
 const vnPhoneValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const v = (control.value ?? '').toString().trim().replace(/\s/g, '');
@@ -47,10 +48,7 @@ export class RegisterPage implements OnInit {
   showPassword = false;
   showConfirm = false;
 
-  industries = signal<IndustryOption[]>([
-    // fallback tạm cho khỏi trống lúc load fail
-    { value: 'other', label: 'Khác' }
-  ]);
+  industries = signal<IndustryOption[]>([{ value: 'other', label: 'Khác' }]);
 
   form = new FormGroup(
     {
@@ -76,7 +74,6 @@ export class RegisterPage implements OnInit {
 
   constructor(
     private router: Router,
-    private industriesService: IndustriesService,
     private authApi: AuthApiService
   ) {}
 
@@ -89,13 +86,19 @@ export class RegisterPage implements OnInit {
 
   private loadIndustries() {
     this.loadingIndustries.set(true);
-    this.industriesService.getIndustries().subscribe({
-      next: (list) => {
-        if (list?.length) {
+
+    this.authApi.industries().subscribe({
+      next: (res) => {
+        const list = (res.data ?? []).map((x) => ({
+          value: String(x.id),
+          label: x.name,
+        }));
+
+        if (list.length) {
           this.industries.set(list);
-          // set default = item đầu
           this.form.get('industryId')?.setValue(list[0].value);
         }
+
         this.loadingIndustries.set(false);
       },
       error: () => {
@@ -117,18 +120,23 @@ export class RegisterPage implements OnInit {
 
     this.loading.set(true);
 
+    // ✅ FIX: bỏ cái đoạn "file:/D:/..." bị dính vào payload
     const payload = {
-      industryId: this.form.value.industryId!,
-      phone: this.form.value.phone!,
-      password: this.form.value.password!,
+      industryId: this.form.getRawValue().industryId,
+      phone: this.form.getRawValue().phone,
+      password: this.form.getRawValue().password,
     };
 
     this.authApi.register(payload).subscribe({
       next: (res) => {
-        // tuỳ backend: nếu res.result==='success' ...
         this.loading.set(false);
-        this.successMessage.set('Đăng ký thành công! Vui lòng đăng nhập.');
-        this.router.navigateByUrl('/login');
+
+        if (res.result === 'success') {
+          this.successMessage.set('Đăng ký thành công! Vui lòng đăng nhập.');
+          this.router.navigateByUrl('/login');
+        } else {
+          this.errorMessage.set(res.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+        }
       },
       error: (err) => {
         this.loading.set(false);

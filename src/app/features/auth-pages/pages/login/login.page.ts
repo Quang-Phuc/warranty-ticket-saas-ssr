@@ -1,11 +1,11 @@
-// src/app/features/auth-pages/pages/login/login.page.ts
+import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { AuthService } from '../../../../core/auth/auth.service';
-import { AuthFacade } from '../../data-access';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
-import { CommonModule } from '@angular/common';
+import { AuthApiService } from '../../data-access/auth-api.service';
 
 @Component({
   standalone: true,
@@ -23,14 +23,14 @@ export class LoginPage {
   }
 
   loginForm = new FormGroup({
-    username: new FormControl('', [Validators.required]),
-    password: new FormControl('', [Validators.required]),
+    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
   constructor(
-      private authService: AuthService,
-      private authFacade: AuthFacade,
-      private router: Router
+    private authService: AuthService,
+    private authApi: AuthApiService,
+    private router: Router
   ) {}
 
   onSubmit() {
@@ -42,15 +42,15 @@ export class LoginPage {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    const { username, password } = this.loginForm.value;
+    const { username, password } = this.loginForm.getRawValue();
 
-    this.authFacade.login({ username: username!, password: password! }).subscribe({
+    this.authApi.login({ username, password }).subscribe({
       next: (response) => {
         if (response.result === 'success' && response.data) {
           this.authService.loginSuccess(
-              response.data.accessToken,
-              response.data.refreshToken,
-              response.data.user
+            response.data.accessToken,
+            response.data.refreshToken,
+            response.data.user
           );
           this.router.navigateByUrl('/app');
         } else {
@@ -59,7 +59,7 @@ export class LoginPage {
         this.loading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
+        this.errorMessage.set(err?.error?.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
         this.loading.set(false);
       }
     });
