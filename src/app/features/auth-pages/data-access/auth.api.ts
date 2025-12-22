@@ -1,7 +1,7 @@
 // src/app/features/auth-pages/data-access/auth.api.ts
 import { Injectable } from '@angular/core';
 import { ApiClient } from '../../../core/http/api-client';
-import { ApiResponse } from '../../../shared/models/api-response.model';
+import { ApiResponse } from '../../../shared/models';
 import { Observable } from 'rxjs';
 
 export interface LoginRequest {

@@ -1,6 +1,5 @@
-// src/app/features/auth-pages/pages/register/register.page.ts
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -12,6 +11,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
+import { AuthApiService } from '../../data-access/auth-api.service';
+import { IndustriesService, IndustryOption } from '../../data-access/industries.service';
 
 const vnPhoneValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const v = (control.value ?? '').toString().trim().replace(/\s/g, '');
@@ -25,7 +26,6 @@ const passwordStrengthValidator: ValidatorFn = (control: AbstractControl): Valid
 };
 
 const matchPasswordValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  // control ở đây là FormGroup, nhưng type là AbstractControl => cast an toàn
   const group = control as FormGroup;
   const p = group.get('password')?.value;
   const c = group.get('confirmPassword')?.value;
@@ -38,29 +38,23 @@ const matchPasswordValidator: ValidatorFn = (control: AbstractControl): Validati
   templateUrl: './register.page.html',
   styleUrl: './register.page.scss'
 })
-export class RegisterPage {
+export class RegisterPage implements OnInit {
   loading = signal(false);
+  loadingIndustries = signal(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
   showPassword = false;
   showConfirm = false;
 
-  togglePassword() { this.showPassword = !this.showPassword; }
-  toggleConfirm() { this.showConfirm = !this.showConfirm; }
-
-  industries = [
-    { value: 'phone-laptop', label: 'Điện thoại / Laptop' },
-    { value: 'electronics', label: 'Điện máy / Điện tử' },
-    { value: 'motorbike', label: 'Xe máy / Garage' },
-    { value: 'appliance', label: 'Điện lạnh / Gia dụng' },
-    { value: 'jewelry', label: 'Trang sức / Đồng hồ' },
-    { value: 'other', label: 'Khác' },
-  ];
+  industries = signal<IndustryOption[]>([
+    // fallback tạm cho khỏi trống lúc load fail
+    { value: 'other', label: 'Khác' }
+  ]);
 
   form = new FormGroup(
     {
-      industry: new FormControl<string>('phone-laptop', {
+      industryId: new FormControl<string>('other', {
         nonNullable: true,
         validators: [Validators.required],
       }),
@@ -80,7 +74,36 @@ export class RegisterPage {
     { validators: [matchPasswordValidator] }
   );
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private industriesService: IndustriesService,
+    private authApi: AuthApiService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadIndustries();
+  }
+
+  togglePassword() { this.showPassword = !this.showPassword; }
+  toggleConfirm() { this.showConfirm = !this.showConfirm; }
+
+  private loadIndustries() {
+    this.loadingIndustries.set(true);
+    this.industriesService.getIndustries().subscribe({
+      next: (list) => {
+        if (list?.length) {
+          this.industries.set(list);
+          // set default = item đầu
+          this.form.get('industryId')?.setValue(list[0].value);
+        }
+        this.loadingIndustries.set(false);
+      },
+      error: () => {
+        this.loadingIndustries.set(false);
+        // giữ fallback, không crash
+      }
+    });
+  }
 
   onSubmit() {
     this.errorMessage.set(null);
@@ -94,11 +117,23 @@ export class RegisterPage {
 
     this.loading.set(true);
 
-    // TODO: gọi API register thật ở đây (authFacade.register)
-    setTimeout(() => {
-      this.loading.set(false);
-      this.successMessage.set('Đăng ký thành công! Vui lòng đăng nhập.');
-      this.router.navigateByUrl('/login');
-    }, 600);
+    const payload = {
+      industryId: this.form.value.industryId!,
+      phone: this.form.value.phone!,
+      password: this.form.value.password!,
+    };
+
+    this.authApi.register(payload).subscribe({
+      next: (res) => {
+        // tuỳ backend: nếu res.result==='success' ...
+        this.loading.set(false);
+        this.successMessage.set('Đăng ký thành công! Vui lòng đăng nhập.');
+        this.router.navigateByUrl('/login');
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(err?.error?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+      }
+    });
   }
 }

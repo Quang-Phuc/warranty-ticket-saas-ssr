@@ -171,12 +171,12 @@
 }
 
 .input-shell.select {
-  grid-template-columns: auto 1fr auto;
-}
-.chev {
-  opacity: 0.7;
-  font-weight: 900;
-  padding: 0 6px;
+  select.input {
+    color: rgba(255, 255, 255, 0.92);
+    color-scheme: dark; /* giúp browser render dropdown hợp dark theme */
+  }
+
+  .chev { opacity: 0.85; }
 }
 
 .icon { opacity: 0.85; font-size: 16px; }
@@ -196,6 +196,15 @@ select.input {
   -webkit-appearance: none;
   -moz-appearance: none;
   cursor: pointer;
+}
+
+select.input option {
+  background: #0b1220;
+  color: rgba(255, 255, 255, 0.92);
+}
+.input-shell.select:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .eye {

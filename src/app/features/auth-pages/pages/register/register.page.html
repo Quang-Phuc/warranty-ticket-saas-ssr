@@ -36,9 +36,10 @@
           <label class="label">Ngành nghề</label>
           <div class="input-shell select">
             <span class="icon">🏷️</span>
-            <select class="input" formControlName="industry">
-              <option *ngFor="let it of industries" [value]="it.value">{{ it.label }}</option>
+            <select class="input" formControlName="industryId">
+              <option *ngFor="let it of industries()" [value]="it.value">{{ it.label }}</option>
             </select>
+
             <span class="chev">▾</span>
           </div>
         </div>
