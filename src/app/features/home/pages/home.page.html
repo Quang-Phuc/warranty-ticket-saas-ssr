@@ -1,37 +1,53 @@
-<div class="home-page">
-    <section class="hero">
+<div class="home-wrapper">
+    <nav class="glass-nav">
+        <div class="container nav-content">
+            <div class="logo">WARRANTY<span>PRO</span></div>
+            <div class="nav-links">
+                <a href="#features">Tính năng</a>
+                <a href="#industries">Ngành nghề</a>
+                <a href="#pricing">Bảng giá</a>
+            </div>
+            <button class="btn-trial-small" routerLink="/register">Dùng thử ngay</button>
+        </div>
+    </nav>
+
+    <section class="hero-premium">
+        <div class="glow-bg"></div>
         <div class="container">
-            <div class="hero-grid">
-                <div class="hero-text">
-                    <div class="badge">Nền tảng quản lý bảo hành 4.0</div>
-                    <h1>Giải pháp <span>Ticket & Bảo hành</span> linh hoạt cho mọi ngành nghề</h1>
-                    <p class="description">
-                        Tự định nghĩa quy trình sửa chữa (Workflow), tùy biến trường dữ liệu (Custom Fields).
-                        Phù hợp từ Điện máy, Gara ô tô đến Bảo trì công trình.
-                    </p>
-                    <div class="cta-group">
-                        <button class="btn-primary">Bắt đầu dùng thử miễn phí</button>
-                        <button class="btn-outline">Xem bản Demo <i class="icon-play"></i></button>
-                    </div>
-                    <div class="trust-badge">
-                        <div class="avatars">
-                            <img src="https://i.pravatar.cc/40?img=1" alt="user">
-                            <img src="https://i.pravatar.cc/40?img=2" alt="user">
-                            <img src="https://i.pravatar.cc/40?img=3" alt="user">
-                        </div>
-                        <span>500+ doanh nghiệp đã tin dùng</span>
+            <div class="hero-inner">
+                <div class="badge-animated">#1 Nền tảng Ticket & Bảo hành đa Tenant</div>
+                <h1 class="gradient-text">Hệ điều hành cho trung tâm <span>Bảo hành & Sửa chữa</span></h1>
+                <p class="hero-desc">Tối ưu hóa 100% quy trình từ tiếp nhận đến bàn giao. Tự động hóa Workflow, tùy biến Custom Fields và quản lý SLA thông minh cho mọi quy mô doanh nghiệp.</p>
+                <div class="hero-actions">
+                    <div class="input-main-group">
+                        <input type="email" placeholder="Nhập Email để dùng thử miễn phí...">
+                        <button class="btn-main-gradient">Bắt đầu ngay <i class="bi bi-arrow-right"></i></button>
                     </div>
                 </div>
+                <div class="hero-stats">
+                    <div class="stat-item"><strong>500+</strong><span>Doanh nghiệp</span></div>
+                    <div class="stat-item"><strong>1M+</strong><span>Ticket xử lý</span></div>
+                    <div class="stat-item"><strong>99.9%</strong><span>Uptime</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                <div class="hero-visual">
-                    <div class="dashboard-preview">
-                        <img src="https://mevivu.com/wp-content/uploads/2022/06/3e1abfe3b4e477ba2ef5.jpg" class="img-main" alt="Dashboard">
-                        <div class="floating-card ticket-status">
-                            <span class="dot pulse"></span> Đang sửa chữa: 24
-                        </div>
-                        <div class="floating-card revenue">
-                            <p>Doanh thu tháng</p>
-                            <strong>+150.000.000đ</strong>
+    <section id="industries" class="section-padding">
+        <div class="container">
+            <div class="text-center-heading">
+                <h2 class="section-title">Đáp ứng mọi đặc thù ngành nghề</h2>
+                <p>Hệ thống linh hoạt cho phép bạn tự định nghĩa dữ liệu theo ngành.</p>
+            </div>
+            <div class="industry-grid-premium">
+                <div class="ind-card-pro" *ngFor="let ind of industries">
+                    <div class="ind-overlay"></div>
+                    <div class="ind-content">
+                        <span class="ind-icon-lg">{{ind.icon}}</span>
+                        <h3>{{ind.name}}</h3>
+                        <p>{{ind.desc}}</p>
+                        <div class="ind-tags">
+                            <span *ngFor="let tag of ind.tags">#{{tag}}</span>
                         </div>
                     </div>
                 </div>
@@ -39,41 +55,77 @@
         </div>
     </section>
 
-    <section class="industries">
-        <div class="container">
-            <h2 class="section-title">Đáp ứng mọi đặc thù ngành nghề</h2>
-            <div class="industry-grid">
-                <div class="industry-card" *ngFor="let item of industries">
-                    <div class="icon-box">{{item.icon}}</div>
-                    <h3>{{item.name}}</h3>
-                    <p>{{item.desc}}</p>
+    <section class="workflow-visual">
+        <div class="container grid-2">
+            <div class="visual-content">
+                <h2>Workflow động & Custom Fields</h2>
+                <p>Mỗi ngành nghề có một cách quản lý khác nhau. Chúng tôi cung cấp công cụ để bạn tự xây dựng "luật chơi" của riêng mình.</p>
+                <div class="feature-list-pro">
+                    <div class="f-pro-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div>
+                            <strong>Tùy biến trường dữ liệu</strong>
+                            <span>Thêm không giới hạn các trường như IMEI, Số KM, Model máy...</span>
+                        </div>
+                    </div>
+                    <div class="f-pro-item">
+                        <i class="bi bi-diagram-3-fill"></i>
+                        <div>
+                            <strong>Thiết kế trạng thái (States)</strong>
+                            <span>Tạo quy trình: Chờ linh kiện -> Đang sửa -> Kiểm tra QC -> Xong.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="visual-demo">
+                <div class="workflow-mockup">
+                    <div class="wf-node active">Tiếp nhận <span class="connector"></span></div>
+                    <div class="wf-node">Sửa chữa <span class="connector"></span></div>
+                    <div class="wf-node">Hoàn tất</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="workflow-feature">
+    <section class="testimonials-premium">
         <div class="container">
-            <div class="feature-flex">
-                <div class="feature-img">
-                    <div class="workflow-steps">
-                        <div class="step active">Tiếp nhận</div>
-                        <div class="step">Kiểm tra</div>
-                        <div class="step">Báo giá</div>
-                        <div class="step">Sửa chữa</div>
-                        <div class="step">Bàn giao</div>
+            <h2 class="text-center">Họ đã thành công, còn bạn?</h2>
+            <div class="testi-grid">
+                <div class="testi-card-pro" *ngFor="let t of testimonials">
+                    <div class="stars">★★★★★</div>
+                    <p>"{{t.content}}"</p>
+                    <div class="user-pro">
+                        <img [src]="t.avatar" alt="">
+                        <div>
+                            <h4>{{t.name}}</h4>
+                            <span>{{t.pos}}</span>
+                        </div>
                     </div>
-                </div>
-                <div class="feature-info">
-                    <h2>Tự thiết kế Workflow theo ý bạn</h2>
-                    <p>Mỗi ngành nghề có một quy trình riêng. Hệ thống cho phép bạn kéo thả các bước trạng thái, thiết lập điều kiện chuyển bước và tự động hóa thông báo Zalo/SMS cho khách hàng.</p>
-                    <ul class="check-list">
-                        <li>Tùy biến trường dữ liệu (IMEI, Số KM, Model...)</li>
-                        <li>Phân quyền kỹ thuật viên theo chuyên môn</li>
-                        <li>Portal tra cứu bảo hành bằng QR Code chuyên nghiệp</li>
-                    </ul>
                 </div>
             </div>
         </div>
     </section>
+
+    <footer class="footer-pro">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>WARRANTY<span>PRO</span></h3>
+                    <p>Nền tảng quản lý bảo hành điện tử và ticket sửa chữa hàng đầu Việt Nam.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Sản phẩm</h4>
+                    <a href="#">Tính năng</a>
+                    <a href="#">Bảng giá</a>
+                    <a href="#">API Docs</a>
+                </div>
+                <div class="footer-contact">
+                    <h4>Liên hệ</h4>
+                    <p>Hotline: 1900 xxxx</p>
+                    <p>Email: contact.io</p>
+                </div>
+            </div>
+            <div class="copyright">© 2025 WarrantyPro. All rights reserved.</div>
+        </div>
+    </footer>
 </div>

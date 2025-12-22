@@ -1,115 +1,96 @@
 @use '../../../styles/variables' as *;
 
-.home-page {
-  background: #0f0f1a;
+.home-wrapper {
+  background: #020205; // Đen sâu thẳm
   color: #fff;
-  overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+// Nav kính mờ
+.glass-nav {
+  position: fixed;
+  top: 0; width: 100%;
+  z-index: 1000;
+  background: rgba(2, 2, 5, 0.7);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 15px 0;
+
+  .nav-content { display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-size: 24px; font-weight: 800; span { color: #ff9a9e; } }
+  .nav-links a { color: #ccc; margin: 0 20px; text-decoration: none; font-weight: 500; transition: 0.3s; &:hover { color: #fff; } }
 }
 
-.hero {
-  padding: 120px 0 80px;
-  background: radial-gradient(circle at top right, rgba(255, 154, 158, 0.15), transparent),
-  radial-gradient(circle at bottom left, rgba(250, 208, 196, 0.1), transparent);
+// Hero Premium
+.hero-premium {
+  padding: 180px 0 100px;
+  position: relative;
+  text-align: center;
 
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
+  .glow-bg {
+    position: absolute;
+    top: -20%; left: 50%;
+    transform: translateX(-50%);
+    width: 80%; height: 600px;
+    background: radial-gradient(circle, rgba(255, 154, 158, 0.15) 0%, transparent 70%);
+    z-index: 0;
   }
 
   h1 {
-    font-size: 56px;
-    line-height: 1.1;
-    margin: 24px 0;
-    span {
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    font-size: 72px; font-weight: 800; margin-bottom: 24px; line-height: 1;
+    span { background: linear-gradient(135deg, #ff9a9e, #fad0c4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   }
 
-  .description {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 40px;
-    line-height: 1.6;
-  }
+  .hero-desc { font-size: 20px; color: rgba(255,255,255,0.6); max-width: 800px; margin: 0 auto 48px; }
 }
 
-.badge {
-  display: inline-block;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 154, 158, 0.3);
-  border-radius: 100px;
-  color: #ff9a9e;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.dashboard-preview {
-  position: relative;
-  .img-main {
-    width: 100%;
-    border-radius: 24px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  .floating-card {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    padding: 16px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    animation: float 4s ease-in-out infinite;
-
-    &.ticket-status { top: 20%; left: -40px; }
-    &.revenue { bottom: 10%; right: -20px; }
-  }
-}
-
-.industry-grid {
+// Industry Pro Cards
+.industry-grid-premium {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-  margin-top: 48px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 60px;
 
-  .industry-card {
-    padding: 32px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+  .ind-card-pro {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 32px;
+    padding: 50px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: 0.5s;
 
     &:hover {
-      background: rgba(255, 154, 158, 0.05);
-      border-color: rgba(255, 154, 158, 0.4);
-      transform: translateY(-10px);
+      background: rgba(255,255,255,0.06);
+      border-color: #ff9a9e;
+      transform: translateY(-15px);
+      .ind-icon-lg { transform: scale(1.2) rotate(10deg); }
     }
 
-    .icon-box { font-size: 40px; margin-bottom: 20px; }
-    h3 { margin-bottom: 12px; }
-    p { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
+    .ind-icon-lg { font-size: 50px; display: block; margin-bottom: 24px; transition: 0.4s; }
+    h3 { font-size: 24px; margin-bottom: 16px; }
+    .ind-tags { margin-top: 20px; span { font-size: 12px; color: #ff9a9e; margin-right: 10px; opacity: 0.7; } }
   }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+// CTA Input Group
+.input-main-group {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px;
+  border-radius: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+
+  input { background: none; border: none; padding: 0 24px; color: white; flex: 1; outline: none; }
+  .btn-main-gradient {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    color: #000; border: none; padding: 16px 32px; border-radius: 18px; font-weight: 700; cursor: pointer;
+  }
 }
 
-@media (max-width: 968px) {
-  .hero .hero-grid { grid-template-columns: 1fr; text-align: center; }
-  .dashboard-preview { margin-top: 60px; }
+@media (max-width: 992px) {
+  .hero-premium h1 { font-size: 48px; }
+  .industry-grid-premium { grid-template-columns: 1fr; }
 }
