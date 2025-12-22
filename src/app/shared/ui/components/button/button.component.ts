@@ -11,4 +11,7 @@ export class ButtonComponent {
   @Input() variant: 'primary' | 'ghost' = 'primary';
   @Input() disabled = false;
   @Input({ transform: booleanAttribute }) loading = false;
+
+  // ✅ NEW: cho phép submit form
+  @Input() type: 'button' | 'submit' | 'reset' = 'button';
 }
