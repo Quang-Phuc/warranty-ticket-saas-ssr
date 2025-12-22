@@ -1,0 +1,129 @@
+<div class="auth-wrap">
+  <div class="bg-shape s1" aria-hidden="true"></div>
+  <div class="bg-shape s2" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <div class="auth-container single">
+    <main class="auth-card">
+      <a class="brand-top" routerLink="/">
+        WARRANTY<span>PRO</span>
+      </a>
+
+      <div class="card-head">
+        <div class="badge-trial">
+          <span class="dot"></span>
+          Dùng thử miễn phí 14 ngày • Không cần thẻ
+        </div>
+
+        <h1 class="title">Tạo tài khoản</h1>
+        <p class="subtitle">
+          Chỉ cần 30 giây. Bắt đầu quản lý bảo hành &amp; sửa chữa ngay.
+        </p>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage() as msg">
+        <span class="e-ic">⚠️</span>
+        <span class="e-txt">{{ msg }}</span>
+      </div>
+
+      <div class="success-banner" *ngIf="successMessage() as msg">
+        <span class="s-ic">✅</span>
+        <span class="s-txt">{{ msg }}</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+        <div class="field">
+          <label class="label">Ngành nghề</label>
+          <div class="input-shell select">
+            <span class="icon">🏷️</span>
+            <select class="input" formControlName="industry">
+              <option *ngFor="let it of industries" [value]="it.value">{{ it.label }}</option>
+            </select>
+            <span class="chev">▾</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Số điện thoại</label>
+          <div class="input-shell">
+            <span class="icon">📞</span>
+            <input
+              type="tel"
+              class="input"
+              placeholder="Ví dụ: 0912345678"
+              formControlName="phone"
+              autocomplete="tel"
+            />
+          </div>
+          <div class="hint" *ngIf="form.get('phone')?.touched && form.get('phone')?.invalid">
+            Số điện thoại không hợp lệ (gợi ý: 0xxxxxxxxx hoặc +84xxxxxxxxx).
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Mật khẩu</label>
+          <div class="input-shell">
+            <span class="icon">🔒</span>
+            <input
+              class="input"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Tối thiểu 6 ký tự"
+              formControlName="password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye" (click)="togglePassword()" aria-label="Toggle password">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <div class="hint" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['weak']">
+            Mật khẩu phải từ 6 ký tự trở lên.
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Nhập lại mật khẩu</label>
+          <div class="input-shell">
+            <span class="icon">🔁</span>
+            <input
+              class="input"
+              [type]="showConfirm ? 'text' : 'password'"
+              placeholder="Nhập lại mật khẩu"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye" (click)="toggleConfirm()" aria-label="Toggle password confirm">
+              {{ showConfirm ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <div class="hint" *ngIf="form.touched && form.errors?.['passwordMismatch']">
+            Mật khẩu nhập lại không khớp.
+          </div>
+        </div>
+
+        <div class="button-wrapper">
+          <ui-button
+            class="register-btn"
+            variant="primary"
+            [loading]="loading()"
+            type="submit"
+          >
+            ✨ Bắt đầu dùng thử miễn phí
+          </ui-button>
+        </div>
+
+        <div class="below">
+          <span class="muted">
+            Đã có tài khoản?
+            <a routerLink="/login">Đăng nhập</a>
+          </span>
+        </div>
+      </form>
+
+      <div class="mini-benefits">
+        <div class="mb-item"><span>✅</span> Tạo ticket + timeline minh bạch</div>
+        <div class="mb-item"><span>✅</span> Tra cứu bảo hành cho khách</div>
+        <div class="mb-item"><span>✅</span> Giảm tranh chấp nhờ ảnh + ký nhận</div>
+      </div>
+    </main>
+  </div>
+</div>

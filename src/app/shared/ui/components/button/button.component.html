@@ -1,14 +1,14 @@
 <!-- src/app/shared/ui/components/button/button.component.html -->
 <button
-  class="btn"
-  [class.btn--primary]="variant === 'primary'"
-  [class.btn--ghost]="variant === 'ghost'"
-  [disabled]="disabled || loading"
-  type="button">
+        class="btn"
+        [class.btn--primary]="variant === 'primary'"
+        [class.btn--ghost]="variant === 'ghost'"
+        [disabled]="disabled || loading"
+        [attr.type]="type">
 
   <span class="btn__content" [class.btn__content--hidden]="loading">
     <ng-content></ng-content>
   </span>
 
-  <span class="btn__spinner" [class.btn__spinner--visible]="loading"></span>
+    <span class="btn__spinner" [class.btn__spinner--visible]="loading"></span>
 </button>

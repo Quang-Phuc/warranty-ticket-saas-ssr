@@ -3,57 +3,23 @@
     <div class="bg-shape s2" aria-hidden="true"></div>
     <div class="bg-noise" aria-hidden="true"></div>
 
-    <div class="auth-container">
-        <!-- Left marketing -->
-        <aside class="auth-side">
-            <a class="brand" routerLink="/">
+    <div class="auth-container single">
+        <main class="auth-card">
+            <!-- Brand top -->
+            <a class="brand-top" routerLink="/">
                 WARRANTY<span>PRO</span>
             </a>
 
-            <h2 class="side-title">
-                Quản lý <span>Ticket &amp; Bảo hành</span> hiện đại
-            </h2>
-
-            <p class="side-sub">
-                Chuẩn hoá quy trình tiếp nhận → báo giá → sửa chữa → bàn giao.
-                Minh bạch timeline, giảm tranh chấp, khách tra cứu tự động.
-            </p>
-
-            <div class="side-kpis">
-                <div class="kpi-card">
-                    <div class="kpi">≤ 60s</div>
-                    <div class="kpi-sub">Tạo ticket tiếp nhận</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi">Ảnh + ký nhận</div>
-                    <div class="kpi-sub">Giảm tranh chấp</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi">Portal tra cứu</div>
-                    <div class="kpi-sub">Khách tự xem tiến độ</div>
-                </div>
-            </div>
-
-            <div class="side-cta">
-                <div class="cta-text">
-                    <strong>Dùng thử miễn phí 14 ngày</strong>
-                    <span>Không cần thẻ • Hủy bất kỳ lúc nào</span>
-                </div>
-
-                <button class="btn-cta" routerLink="/register" type="button">
-                    ✨ Dùng thử miễn phí
-                    <span class="arrow">→</span>
-                </button>
-            </div>
-
-            <div class="side-foot">🔒 Multi-tenant • ⚡ SSR nhanh • 📱 Mobile-first</div>
-        </aside>
-
-        <!-- Right login -->
-        <main class="auth-card">
             <div class="card-head">
+                <div class="badge-trial">
+                    <span class="dot"></span>
+                    Dùng thử miễn phí 14 ngày • Không cần thẻ
+                </div>
+
                 <h1 class="title">Chào mừng trở lại</h1>
-                <p class="subtitle">Đăng nhập để quản lý bảo hành &amp; sửa chữa gọn hơn.</p>
+                <p class="subtitle">
+                    Đăng nhập để quản lý bảo hành &amp; sửa chữa gọn hơn.
+                </p>
             </div>
 
             <!-- Error banner -->
@@ -100,7 +66,6 @@
                 </div>
 
                 <div class="button-wrapper">
-                    <!-- ✅ DÙNG đúng selector: ui-button -->
                     <ui-button
                             class="login-btn"
                             variant="primary"
@@ -114,7 +79,7 @@
                 <div class="divider"><span>hoặc</span></div>
 
                 <button type="button" class="btn-ghost" routerLink="/register">
-                    Bắt đầu dùng thử miễn phí
+                    ✨ Bắt đầu dùng thử miễn phí
                     <span class="arrow">→</span>
                 </button>
             </form>
