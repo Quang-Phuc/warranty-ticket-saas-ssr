@@ -1,0 +1,79 @@
+<div class="home-page">
+    <section class="hero">
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <div class="badge">Nền tảng quản lý bảo hành 4.0</div>
+                    <h1>Giải pháp <span>Ticket & Bảo hành</span> linh hoạt cho mọi ngành nghề</h1>
+                    <p class="description">
+                        Tự định nghĩa quy trình sửa chữa (Workflow), tùy biến trường dữ liệu (Custom Fields).
+                        Phù hợp từ Điện máy, Gara ô tô đến Bảo trì công trình.
+                    </p>
+                    <div class="cta-group">
+                        <button class="btn-primary">Bắt đầu dùng thử miễn phí</button>
+                        <button class="btn-outline">Xem bản Demo <i class="icon-play"></i></button>
+                    </div>
+                    <div class="trust-badge">
+                        <div class="avatars">
+                            <img src="https://i.pravatar.cc/40?img=1" alt="user">
+                            <img src="https://i.pravatar.cc/40?img=2" alt="user">
+                            <img src="https://i.pravatar.cc/40?img=3" alt="user">
+                        </div>
+                        <span>500+ doanh nghiệp đã tin dùng</span>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="dashboard-preview">
+                        <img src="https://mevivu.com/wp-content/uploads/2022/06/3e1abfe3b4e477ba2ef5.jpg" class="img-main" alt="Dashboard">
+                        <div class="floating-card ticket-status">
+                            <span class="dot pulse"></span> Đang sửa chữa: 24
+                        </div>
+                        <div class="floating-card revenue">
+                            <p>Doanh thu tháng</p>
+                            <strong>+150.000.000đ</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="industries">
+        <div class="container">
+            <h2 class="section-title">Đáp ứng mọi đặc thù ngành nghề</h2>
+            <div class="industry-grid">
+                <div class="industry-card" *ngFor="let item of industries">
+                    <div class="icon-box">{{item.icon}}</div>
+                    <h3>{{item.name}}</h3>
+                    <p>{{item.desc}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="workflow-feature">
+        <div class="container">
+            <div class="feature-flex">
+                <div class="feature-img">
+                    <div class="workflow-steps">
+                        <div class="step active">Tiếp nhận</div>
+                        <div class="step">Kiểm tra</div>
+                        <div class="step">Báo giá</div>
+                        <div class="step">Sửa chữa</div>
+                        <div class="step">Bàn giao</div>
+                    </div>
+                </div>
+                <div class="feature-info">
+                    <h2>Tự thiết kế Workflow theo ý bạn</h2>
+                    <p>Mỗi ngành nghề có một quy trình riêng. Hệ thống cho phép bạn kéo thả các bước trạng thái, thiết lập điều kiện chuyển bước và tự động hóa thông báo Zalo/SMS cho khách hàng.</p>
+                    <ul class="check-list">
+                        <li>Tùy biến trường dữ liệu (IMEI, Số KM, Model...)</li>
+                        <li>Phân quyền kỹ thuật viên theo chuyên môn</li>
+                        <li>Portal tra cứu bảo hành bằng QR Code chuyên nghiệp</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

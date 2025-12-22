@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
+import { HomePage } from './features/home/pages/home.page'; // Điều chỉnh path nếu folder khác
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'app'
+    component: HomePage  // Trực tiếp load HomePage khi vào root
   },
   {
     path: 'login',
@@ -20,6 +21,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'app'
+    redirectTo: ''  // Wildcard redirect về home nếu path không khớp
   }
 ];
