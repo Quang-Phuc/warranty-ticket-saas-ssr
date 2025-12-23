@@ -45,30 +45,17 @@ export class LoginPage {
     this.errorMessage.set(null);
 
     const { username, password } = this.loginForm.getRawValue();
+    const payload = { username, password };
 
     this.authApi
-      .login({ username, password })
+      .login(payload)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (response) => {
-          if (response?.result === 'success' && response?.data) {
-            this.authService.loginSuccess(
-              response.data.accessToken,
-              response.data.refreshToken,
-              response.data.user
-            );
-            this.router.navigateByUrl('/app');
-            return;
-          }
+        next: (data) => {
+          this.authService.loginSuccess(data.accessToken, data.refreshToken, data.user);
+          this.router.navigateByUrl('/app');
+        },
 
-          // Business error (API trả 200 nhưng result = error)
-          this.errorMessage.set(response?.message || 'Đăng nhập không thành công.');
-        },
-        error: () => {
-          // HTTP error đã được interceptor tự show toast rồi
-          // Ở đây chỉ set message nếu bạn muốn hiện trên UI form
-          this.errorMessage.set('Không thể kết nối đến máy chủ. Vui lòng thử lại.');
-        },
       });
   }
 

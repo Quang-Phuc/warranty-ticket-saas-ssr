@@ -1,3 +1,4 @@
+// src/app/features/auth/pages/register/register.page.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import {
@@ -7,9 +8,11 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
 import { AuthApiService } from '../../data-access/auth-api.service';
 
@@ -37,7 +40,7 @@ const matchPasswordValidator: ValidatorFn = (control: AbstractControl): Validati
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonComponent],
   templateUrl: './register.page.html',
-  styleUrl: './register.page.scss'
+  styleUrl: './register.page.scss',
 })
 export class RegisterPage implements OnInit {
   loading = signal(false);
@@ -72,40 +75,43 @@ export class RegisterPage implements OnInit {
     { validators: [matchPasswordValidator] }
   );
 
-  constructor(
-    private router: Router,
-    private authApi: AuthApiService
-  ) {}
+  constructor(private router: Router, private authApi: AuthApiService) {}
 
   ngOnInit(): void {
     this.loadIndustries();
   }
 
-  togglePassword() { this.showPassword = !this.showPassword; }
-  toggleConfirm() { this.showConfirm = !this.showConfirm; }
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+  toggleConfirm() {
+    this.showConfirm = !this.showConfirm;
+  }
 
   private loadIndustries() {
     this.loadingIndustries.set(true);
 
-    this.authApi.industries().subscribe({
-      next: (res) => {
-        const list = (res.data ?? []).map((x) => ({
-          value: String(x.id),
-          label: x.name,
-        }));
+    // ✅ Nếu bạn đã chuyển ApiClient sang getData() => industries() trả IndustryDto[]
+    // thì res ở đây là list luôn, không còn res.data nữa.
+    this.authApi
+      .industries()
+      .pipe(finalize(() => this.loadingIndustries.set(false)))
+      .subscribe({
+        next: (list) => {
+          const mapped = (list ?? []).map((x) => ({
+            value: String(x.id),
+            label: x.name,
+          }));
 
-        if (list.length) {
-          this.industries.set(list);
-          this.form.get('industryId')?.setValue(list[0].value);
-        }
-
-        this.loadingIndustries.set(false);
-      },
-      error: () => {
-        this.loadingIndustries.set(false);
-        // giữ fallback, không crash
-      }
-    });
+          if (mapped.length) {
+            this.industries.set(mapped);
+            this.form.get('industryId')?.setValue(mapped[0].value);
+          }
+        },
+        error: () => {
+          // HTTP error đã auto toast (interceptor). Ở đây giữ fallback, không crash.
+        },
+      });
   }
 
   onSubmit() {
@@ -118,30 +124,31 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    this.loading.set(true);
+    const { industryId, phone, password } = this.form.getRawValue();
 
-    // ✅ FIX: bỏ cái đoạn "file:/D:/..." bị dính vào payload
     const payload = {
-      industryId: this.form.getRawValue().industryId,
-      phone: this.form.getRawValue().phone,
-      password: this.form.getRawValue().password,
+      industryId,
+      phone,
+      password,
     };
 
-    this.authApi.register(payload).subscribe({
-      next: (res) => {
-        this.loading.set(false);
+    this.loading.set(true);
 
-        if (res.result === 'success') {
+    // ✅ Nếu bạn đã chuyển ApiClient sang postData() => register() có thể trả any (data)
+    // Nhiều API register thường không cần data, chỉ cần success là navigate.
+    this.authApi
+      .register(payload)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: () => {
+          // success auto (ApiClient unwrap) => tới đây là OK
           this.successMessage.set('Đăng ký thành công! Vui lòng đăng nhập.');
           this.router.navigateByUrl('/login');
-        } else {
-          this.errorMessage.set(res.message || 'Đăng ký thất bại. Vui lòng thử lại.');
-        }
-      },
-      error: (err) => {
-        this.loading.set(false);
-        this.errorMessage.set(err?.error?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
-      }
-    });
+        },
+        error: () => {
+          // toast đã auto rồi, nếu muốn hiện dưới form thì bật dòng dưới:
+          // this.errorMessage.set('Đăng ký thất bại. Vui lòng thử lại.');
+        },
+      });
   }
 }
