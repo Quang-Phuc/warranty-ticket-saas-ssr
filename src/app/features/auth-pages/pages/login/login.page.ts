@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
-import { AuthService } from '../../../../core/auth/auth.service';
+import { AuthService, CurrentUser } from '../../../../core/auth/auth.service';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
 import { AuthApiService } from '../../data-access/auth-api.service';
 
@@ -35,6 +35,22 @@ export class LoginPage {
     private router: Router
   ) {}
 
+  private toCurrentUser(data: any): CurrentUser {
+    // Backend JwtResponse: id, userName, roles, ... (fullName chưa có)
+    // => map hợp lệ cho CurrentUser của FE
+    const username = (data?.userName ?? data?.username ?? '').toString();
+    const id = Number(data?.id ?? 0) || 0;
+    const roles = Array.isArray(data?.roles) ? data.roles : [];
+
+    return {
+      id,
+      username: username || 'unknown',
+      // chưa có fullName từ backend => dùng username tạm
+      fullName: (data?.fullName ?? username ?? 'User').toString(),
+      roles,
+    };
+  }
+
   onSubmit() {
     if (this.loginForm.invalid) {
       this.errorMessage.set('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
@@ -52,10 +68,26 @@ export class LoginPage {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (data) => {
-          this.authService.loginSuccess(data.accessToken, data.refreshToken, data.user);
+          // ✅ LƯU MENU + THEME TỪ API LOGIN
+          localStorage.setItem('navGroups', JSON.stringify(data.navGroups ?? []));
+          localStorage.setItem('ui.theme', data.ui?.theme ?? 'light');
+
+          // ✅ Map về CurrentUser đúng kiểu FE
+          const currentUser = this.toCurrentUser(data);
+
+          // ✅ Lưu token + user
+          this.authService.loginSuccess(
+            data.token,
+            data.refreshToken ?? '',
+            currentUser
+          );
+
           this.router.navigateByUrl('/app');
         },
-
+        error: () => {
+          // HTTP error đã interceptor toast rồi, nếu muốn show text dưới form:
+          this.errorMessage.set('Không thể kết nối đến máy chủ. Vui lòng thử lại.');
+        },
       });
   }
 
