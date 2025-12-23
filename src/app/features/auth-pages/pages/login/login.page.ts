@@ -1,7 +1,9 @@
+// src/app/features/auth/pages/login/login.page.ts
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
@@ -11,7 +13,7 @@ import { AuthApiService } from '../../data-access/auth-api.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ButtonComponent, RouterLink],
   templateUrl: './login.page.html',
-  styleUrl: './login.page.scss'
+  styleUrl: './login.page.scss',
 })
 export class LoginPage {
   loading = signal(false);
@@ -44,25 +46,30 @@ export class LoginPage {
 
     const { username, password } = this.loginForm.getRawValue();
 
-    this.authApi.login({ username, password }).subscribe({
-      next: (response) => {
-        if (response.result === 'success' && response.data) {
-          this.authService.loginSuccess(
-            response.data.accessToken,
-            response.data.refreshToken,
-            response.data.user
-          );
-          this.router.navigateByUrl('/app');
-        } else {
-          this.errorMessage.set(response.message || 'Đăng nhập không thành công.');
-        }
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.errorMessage.set(err?.error?.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
-        this.loading.set(false);
-      }
-    });
+    this.authApi
+      .login({ username, password })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (response) => {
+          if (response?.result === 'success' && response?.data) {
+            this.authService.loginSuccess(
+              response.data.accessToken,
+              response.data.refreshToken,
+              response.data.user
+            );
+            this.router.navigateByUrl('/app');
+            return;
+          }
+
+          // Business error (API trả 200 nhưng result = error)
+          this.errorMessage.set(response?.message || 'Đăng nhập không thành công.');
+        },
+        error: () => {
+          // HTTP error đã được interceptor tự show toast rồi
+          // Ở đây chỉ set message nếu bạn muốn hiện trên UI form
+          this.errorMessage.set('Không thể kết nối đến máy chủ. Vui lòng thử lại.');
+        },
+      });
   }
 
   mockLogin() {
