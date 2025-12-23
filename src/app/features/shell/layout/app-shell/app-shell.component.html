@@ -6,13 +6,12 @@
         <div class="logo">WP</div>
         <div class="brand-text">
           <div class="name">WarrantyPro</div>
-          <div class="sub">Workspace</div>
+          <div class="sub">SaaS Workspace</div>
         </div>
       </div>
 
       <button class="theme-btn" type="button" (click)="toggleTheme()" aria-label="Toggle theme">
         <span class="ic">{{ theme() === 'dark' ? '🌙' : '☀️' }}</span>
-        <span class="txt">{{ theme() === 'dark' ? 'Dark' : 'Light' }}</span>
       </button>
     </div>
 
@@ -34,33 +33,50 @@
                 <span class="icon">{{ item.icon || '📁' }}</span>
                 <span class="label">{{ item.label }}</span>
               </span>
-              <span class="chev">{{ isOpen(item.id) ? '▾' : '▸' }}</span>
+
+              <span class="right">
+                <span class="badge" *ngIf="item.badge !== undefined">{{ item.badge }}</span>
+                <span class="chev" aria-hidden="true"></span>
+              </span>
             </button>
 
             <!-- Leaf -->
             <ng-template #leafItem>
               <a
                 class="nav-item"
-                [routerLink]="item.route"
+                [routerLink]="item.route || ''"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
               >
-                <span class="icon">{{ item.icon || '•' }}</span>
-                <span class="label">{{ item.label }}</span>
+                <span class="left">
+                  <span class="icon">{{ item.icon || '•' }}</span>
+                  <span class="label">{{ item.label }}</span>
+                </span>
+
+                <span class="right">
+                  <span class="badge" *ngIf="item.badge !== undefined">{{ item.badge }}</span>
+                  <span class="go">↗</span>
+                </span>
               </a>
             </ng-template>
 
-            <!-- Children -->
-            <div class="children" *ngIf="item.children?.length && isOpen(item.id)">
+            <!-- Children: animated collapse -->
+            <div
+              class="children"
+              *ngIf="item.children?.length"
+              [class.expanded]="isOpen(item.id)"
+              [style.maxHeight.px]="isOpen(item.id) ? calcChildrenHeight((item.children?.length ?? 0)) : 0"
+            >
               <a
                 class="nav-sub"
                 *ngFor="let c of item.children"
-                [routerLink]="c.route"
+                [routerLink]="c.route || ''"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
               >
                 <span class="dot"></span>
                 <span class="label">{{ c.label }}</span>
+                <span class="mini" *ngIf="c.badge !== undefined">{{ c.badge }}</span>
               </a>
             </div>
           </ng-container>
@@ -69,7 +85,10 @@
     </div>
 
     <div class="side-bottom">
-      <ui-button variant="ghost" (click)="logout()">Đăng xuất</ui-button>
+      <button class="logout" type="button" (click)="logout()">
+        <span class="lo-ic">⎋</span>
+        <span>Đăng xuất</span>
+      </button>
     </div>
   </aside>
 

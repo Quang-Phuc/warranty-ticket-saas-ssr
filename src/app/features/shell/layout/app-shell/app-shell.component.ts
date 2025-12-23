@@ -2,9 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-
 import { AuthService } from '../../../../core/auth/auth.service';
-import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -12,8 +10,9 @@ export type NavItem = {
   id: string;
   label: string;
   icon?: string;
-  route?: string;
-  children?: NavItem[];
+  route?: string | null;
+  children?: NavItem[] | null;
+  badge?: number;
 };
 
 export type NavGroup = {
@@ -24,7 +23,7 @@ export type NavGroup = {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ButtonComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })
@@ -41,6 +40,7 @@ export class AppShellComponent implements OnInit {
   }
 
   private initTheme() {
+    // ưu tiên theme từ login (localStorage ui.theme), fallback light
     const saved = (localStorage.getItem('ui.theme') as ThemeMode) || 'light';
     this.setTheme(saved);
   }
@@ -52,13 +52,35 @@ export class AppShellComponent implements OnInit {
   private setTheme(mode: ThemeMode) {
     this.theme.set(mode);
     localStorage.setItem('ui.theme', mode);
-    document.documentElement.setAttribute('data-theme', mode);
+
+    // set vào host
+    (document.querySelector('app-root') || document.documentElement).setAttribute('data-theme', mode);
   }
 
   private loadMenuFromStorage() {
     const raw = this.safeParse(localStorage.getItem('navGroups'));
-    this.navGroups.set(Array.isArray(raw) ? raw : []);
-    this.seedExpanded(this.navGroups());
+    const groups: NavGroup[] = Array.isArray(raw) ? this.normalizeGroups(raw as NavGroup[]) : [];
+    this.navGroups.set(groups);
+
+    // auto open các menu có children
+    const state: Record<string, boolean> = {};
+    for (const g of groups) {
+      for (const it of g.items) {
+        if (it.children && it.children.length) state[it.id] = true;
+      }
+    }
+    this.expanded.set(state);
+  }
+
+  private normalizeGroups(groups: NavGroup[]): NavGroup[] {
+    // API bạn trả: children: null -> convert sang []
+    return (groups || []).map((g) => ({
+      ...g,
+      items: (g.items || []).map((it) => ({
+        ...it,
+        children: Array.isArray(it.children) ? it.children : [],
+      })),
+    }));
   }
 
   private safeParse(v: string | null) {
@@ -69,22 +91,16 @@ export class AppShellComponent implements OnInit {
     }
   }
 
-  private seedExpanded(groups: NavGroup[]) {
-    const state: Record<string, boolean> = {};
-    for (const g of groups) {
-      for (const it of g.items) {
-        if (it.children?.length) state[it.id] = true; // default open
-      }
-    }
-    this.expanded.set(state);
-  }
-
   isOpen(id: string) {
     return !!this.expanded()[id];
   }
 
   toggleOpen(id: string) {
     this.expanded.set({ ...this.expanded(), [id]: !this.expanded()[id] });
+  }
+
+  calcChildrenHeight(count: number) {
+    return Math.min(420, count * 52 + 12);
   }
 
   logout(): void {
