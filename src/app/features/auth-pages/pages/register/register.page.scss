@@ -269,3 +269,21 @@ select.input option {
   }
   span { opacity: 0.95; }
 }
+/* --- FIX CHROME AUTOFILL WHITE BACKGROUND (tài khoản/mật khẩu bị trắng) --- */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: var(--text);
+  transition: background-color 9999s ease-out 0s;
+
+  /* phủ lại nền autofill */
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0) inset !important;
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0) inset !important;
+}
+
+/* Một số trình duyệt áp màu nền theo hệ thống */
+.input {
+  color-scheme: dark;
+}
