@@ -1,18 +1,17 @@
 // src/app/features/shell/layout/app-shell/app-shell.component.ts
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../../../core/auth/auth.service';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, Inject, OnInit, signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 
-type ThemeMode = 'light' | 'dark';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 export type NavItem = {
   id: string;
   label: string;
   icon?: string;
   route?: string | null;
+  badge?: string | number;
   children?: NavItem[] | null;
-  badge?: number;
 };
 
 export type NavGroup = {
@@ -21,89 +20,117 @@ export type NavGroup = {
   items: NavItem[];
 };
 
+type ThemeMode = 'dark' | 'light';
+
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  selector: 'app-shell',
+  imports: [CommonModule, RouterModule],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })
 export class AppShellComponent implements OnInit {
-  theme = signal<ThemeMode>('light');
-  navGroups = signal<NavGroup[]>([]);
-  expanded = signal<Record<string, boolean>>({});
+  readonly theme = signal<ThemeMode>('dark');
+  readonly collapsed = signal<boolean>(false);
 
-  constructor(private auth: AuthService) {}
+  readonly navGroups = signal<NavGroup[]>([]);
+  private readonly openMap = signal<Record<string, boolean>>({});
+
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    @Inject(DOCUMENT) private doc: Document
+  ) {}
 
   ngOnInit(): void {
-    this.initTheme();
-    this.loadMenuFromStorage();
-  }
+    // collapsed state
+    const c = localStorage.getItem('sidebarCollapsed');
+    if (c === '1') this.collapsed.set(true);
 
-  private initTheme() {
-    // ưu tiên theme từ login (localStorage ui.theme), fallback light
-    const saved = (localStorage.getItem('ui.theme') as ThemeMode) || 'light';
-    this.setTheme(saved);
-  }
+    // theme
+    const savedTheme = (localStorage.getItem('uiTheme') as ThemeMode | null) ?? null;
+    if (savedTheme === 'dark' || savedTheme === 'light') this.theme.set(savedTheme);
 
-  toggleTheme() {
-    this.setTheme(this.theme() === 'dark' ? 'light' : 'dark');
-  }
-
-  private setTheme(mode: ThemeMode) {
-    this.theme.set(mode);
-    localStorage.setItem('ui.theme', mode);
-
-    // set vào host
-    (document.querySelector('app-root') || document.documentElement).setAttribute('data-theme', mode);
-  }
-
-  private loadMenuFromStorage() {
-    const raw = this.safeParse(localStorage.getItem('navGroups'));
-    const groups: NavGroup[] = Array.isArray(raw) ? this.normalizeGroups(raw as NavGroup[]) : [];
-    this.navGroups.set(groups);
-
-    // auto open các menu có children
-    const state: Record<string, boolean> = {};
-    for (const g of groups) {
-      for (const it of g.items) {
-        if (it.children && it.children.length) state[it.id] = true;
+    // menu
+    const raw = localStorage.getItem('navGroups');
+    if (raw) {
+      try {
+        this.navGroups.set(JSON.parse(raw) as NavGroup[]);
+      } catch {
+        this.navGroups.set(this.fallbackNav());
       }
+    } else {
+      this.navGroups.set(this.fallbackNav());
     }
-    this.expanded.set(state);
+
   }
 
-  private normalizeGroups(groups: NavGroup[]): NavGroup[] {
-    // API bạn trả: children: null -> convert sang []
-    return (groups || []).map((g) => ({
-      ...g,
-      items: (g.items || []).map((it) => ({
-        ...it,
-        children: Array.isArray(it.children) ? it.children : [],
-      })),
-    }));
+  // ===== Theme =====
+
+
+
+  // ===== Sidebar =====
+  toggleCollapsed(): void {
+    const next = !this.collapsed();
+    this.collapsed.set(next);
+    localStorage.setItem('sidebarCollapsed', next ? '1' : '0');
   }
 
-  private safeParse(v: string | null) {
-    try {
-      return v ? JSON.parse(v) : null;
-    } catch {
-      return null;
+  // ===== Menu accordion =====
+  isOpen(id: string): boolean {
+    return !!this.openMap()[id];
+  }
+
+  toggleOpen(id: string): void {
+    const curr = this.openMap();
+    this.openMap.set({ ...curr, [id]: !curr[id] });
+  }
+
+  calcChildrenHeight(count: number): number {
+    return Math.max(0, count) * 40 + 8;
+  }
+
+  /** ✅ handler click parent/menu item (fix lỗi parser) */
+  onItemClick(ev: MouseEvent, item: NavItem): void {
+    const hasChildren = (item.children?.length ?? 0) > 0;
+
+    if (hasChildren) {
+      // parent accordion -> không navigate
+      ev.preventDefault();
+      this.toggleOpen(item.id);
+      return;
     }
-  }
 
-  isOpen(id: string) {
-    return !!this.expanded()[id];
-  }
-
-  toggleOpen(id: string) {
-    this.expanded.set({ ...this.expanded(), [id]: !this.expanded()[id] });
-  }
-
-  calcChildrenHeight(count: number) {
-    return Math.min(420, count * 52 + 12);
+    // leaf -> navigate nếu có route
+    if (item.route) {
+      // vẫn để routerLink tự xử lý cũng ok, nhưng giữ chắc:
+      // this.router.navigateByUrl(item.route);
+    }
   }
 
   logout(): void {
     this.auth.logout();
+  }
+
+  private fallbackNav(): NavGroup[] {
+    return [
+      {
+        id: 'core',
+        label: 'Tổng quan',
+        items: [
+          { id: 'dashboard', label: 'Dashboard', icon: '📊', route: '/app/dashboard' },
+          {
+            id: 'tickets',
+            label: 'Tickets',
+            icon: '🧾',
+            route: null,
+            children: [
+              { id: 'tickets_list', label: 'Danh sách', route: '/app/tickets' },
+              { id: 'tickets_new', label: 'Tạo mới', route: '/app/tickets/new' },
+            ],
+          },
+        ],
+      },
+    ];
   }
 }
