@@ -13,3 +13,65 @@ body {
 }
 
 a { color: inherit; }
+/* ====== Toast (MatSnackBar) ====== */
+:root {
+  --toast-radius: 14px;
+  --toast-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  --toast-padding-y: 12px;
+  --toast-padding-x: 14px;
+  --toast-gap: 10px;
+
+  --toast-success: #16a34a;
+  --toast-error: #dc2626;
+  --toast-info: #2563eb;
+  --toast-text: #ffffff;
+}
+
+/* Đẩy snackbar lên trên các modal/header */
+.cdk-overlay-container,
+.cdk-overlay-pane {
+  z-index: 99999 !important;
+}
+
+/* Container chung của snackbar */
+.snackbar-success .mdc-snackbar__surface,
+.snackbar-error .mdc-snackbar__surface,
+.snackbar-info .mdc-snackbar__surface {
+  border-radius: var(--toast-radius) !important;
+  box-shadow: var(--toast-shadow) !important;
+  padding: var(--toast-padding-y) var(--toast-padding-x) !important;
+  min-width: 320px;
+  max-width: 420px;
+}
+
+/* Text + nút action */
+.snackbar-success .mdc-snackbar__label,
+.snackbar-error .mdc-snackbar__label,
+.snackbar-info .mdc-snackbar__label {
+  color: var(--toast-text) !important;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.snackbar-success .mdc-snackbar__actions button,
+.snackbar-error .mdc-snackbar__actions button,
+.snackbar-info .mdc-snackbar__actions button {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 600;
+}
+
+/* Màu nền theo loại */
+.snackbar-success .mdc-snackbar__surface {
+  background: var(--toast-success) !important;
+}
+.snackbar-error .mdc-snackbar__surface {
+  background: var(--toast-error) !important;
+}
+.snackbar-info .mdc-snackbar__surface {
+  background: var(--toast-info) !important;
+}
+
+/* Khoảng cách nếu nhiều toast liên tiếp */
+.mat-mdc-snack-bar-container {
+  margin: var(--toast-gap) !important;
+}
