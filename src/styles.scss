@@ -75,3 +75,25 @@ a { color: inherit; }
 .mat-mdc-snack-bar-container {
   margin: var(--toast-gap) !important;
 }
+/* Force MatSnackBar top-right */
+.cdk-global-overlay-wrapper:has(.toast-top-right) {
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+}
+
+.cdk-overlay-pane:has(.toast-top-right) {
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: auto !important;
+}
+
+.toast-top-right {
+  margin-top: 16px !important;
+  margin-right: 16px !important;
+}
+
+.cdk-overlay-container,
+.cdk-overlay-pane {
+  z-index: 99999 !important;
+}
