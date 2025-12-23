@@ -1,8 +1,6 @@
-// src/app/features/shell/layout/app-shell/app-shell.component.ts
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, Inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-
 import { AuthService } from '../../../../core/auth/auth.service';
 
 export type NavItem = {
@@ -36,22 +34,22 @@ export class AppShellComponent implements OnInit {
   readonly navGroups = signal<NavGroup[]>([]);
   private readonly openMap = signal<Record<string, boolean>>({});
 
+  // ✅ avatar dropdown
+  readonly userMenuOpen = signal(false);
+
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
     private router: Router,
     @Inject(DOCUMENT) private doc: Document
   ) {}
 
   ngOnInit(): void {
-    // collapsed state
     const c = localStorage.getItem('sidebarCollapsed');
     if (c === '1') this.collapsed.set(true);
 
-    // theme
     const savedTheme = (localStorage.getItem('uiTheme') as ThemeMode | null) ?? null;
     if (savedTheme === 'dark' || savedTheme === 'light') this.theme.set(savedTheme);
 
-    // menu
     const raw = localStorage.getItem('navGroups');
     if (raw) {
       try {
@@ -63,17 +61,57 @@ export class AppShellComponent implements OnInit {
       this.navGroups.set(this.fallbackNav());
     }
 
+    this.applyTheme(this.theme());
   }
 
   // ===== Theme =====
+  toggleTheme(): void {
+    const next: ThemeMode = this.theme() === 'dark' ? 'light' : 'dark';
+    this.theme.set(next);
+    localStorage.setItem('uiTheme', next);
+    this.applyTheme(next);
+  }
 
+  private applyTheme(mode: ThemeMode): void {
+    const root = this.doc.documentElement;
+    root.setAttribute('data-theme', mode);
 
+    const vars =
+      mode === 'dark'
+        ? {
+          '--app-bg': '#0b1220',
+          '--app-bg2': '#0a0f1a',
+          '--app-surface': 'rgba(255,255,255,0.08)',
+          '--app-surface2': 'rgba(255,255,255,0.06)',
+          '--app-stroke': 'rgba(255,255,255,0.12)',
+          '--app-text': 'rgba(255,255,255,0.92)',
+          '--app-muted': 'rgba(255,255,255,0.62)',
+          '--app-primary': '#7c3aed',
+          '--app-primary2': '#22c55e',
+        }
+        : {
+          '--app-bg': '#f7f8fc',
+          '--app-bg2': '#ffffff',
+          '--app-surface': 'rgba(15,23,42,0.05)',
+          '--app-surface2': 'rgba(15,23,42,0.035)',
+          '--app-stroke': 'rgba(15,23,42,0.10)',
+          '--app-text': '#0f172a',
+          '--app-muted': 'rgba(15,23,42,0.62)',
+          '--app-primary': '#6d28d9',
+          '--app-primary2': '#16a34a',
+        };
+
+    Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+  }
 
   // ===== Sidebar =====
   toggleCollapsed(): void {
     const next = !this.collapsed();
     this.collapsed.set(next);
     localStorage.setItem('sidebarCollapsed', next ? '1' : '0');
+
+    // khi collapsed thì đóng dropdown cho gọn
+    if (next) this.userMenuOpen.set(false);
   }
 
   // ===== Menu accordion =====
@@ -90,26 +128,44 @@ export class AppShellComponent implements OnInit {
     return Math.max(0, count) * 40 + 8;
   }
 
-  /** ✅ handler click parent/menu item (fix lỗi parser) */
   onItemClick(ev: MouseEvent, item: NavItem): void {
     const hasChildren = (item.children?.length ?? 0) > 0;
-
     if (hasChildren) {
-      // parent accordion -> không navigate
       ev.preventDefault();
       this.toggleOpen(item.id);
-      return;
-    }
-
-    // leaf -> navigate nếu có route
-    if (item.route) {
-      // vẫn để routerLink tự xử lý cũng ok, nhưng giữ chắc:
-      // this.router.navigateByUrl(item.route);
     }
   }
 
+  // ===== Avatar menu =====
+  toggleUserMenu(): void {
+    this.userMenuOpen.set(!this.userMenuOpen());
+  }
+
+  goProfile(): void {
+    this.userMenuOpen.set(false);
+    this.router.navigateByUrl('/app/profile');
+  }
+
   logout(): void {
+    this.userMenuOpen.set(false);
     this.auth.logout();
+  }
+
+  get initials(): string {
+    const u = this.auth.currentUser();
+    const name = (u?.fullName || u?.username || '').trim();
+    if (!name) return 'U';
+    const parts = name.split(/\s+/).slice(0, 2);
+    return parts.map((p) => p[0]?.toUpperCase()).join('');
+  }
+
+  // click ngoài -> đóng dropdown
+  @HostListener('document:click', ['$event'])
+  onDocClick(ev: MouseEvent): void {
+    const t = ev.target as HTMLElement | null;
+    if (!t) return;
+    if (t.closest('.userbox')) return;
+    if (this.userMenuOpen()) this.userMenuOpen.set(false);
   }
 
   private fallbackNav(): NavGroup[] {
