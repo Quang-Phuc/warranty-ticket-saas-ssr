@@ -1,0 +1,49 @@
+<div class="profile">
+  <div class="card">
+    <div class="head">
+      <div class="left">
+        <div class="title">Thông tin cá nhân</div>
+        <div class="sub">Chỉnh sửa thông tin hiển thị trên hệ thống</div>
+      </div>
+
+      <div class="avatar-preview">
+        <img *ngIf="form.value.avatarUrl" [src]="form.value.avatarUrl" alt="avatar" referrerpolicy="no-referrer" />
+        <div class="fallback" *ngIf="!form.value.avatarUrl">{{ initials }}</div>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="grid">
+        <label>
+          <span>Họ tên</span>
+          <input formControlName="fullName" placeholder="Nguyễn Văn A" />
+        </label>
+
+        <label>
+          <span>Email</span>
+          <input formControlName="email" placeholder="email@domain.com" />
+        </label>
+
+        <label>
+          <span>Số điện thoại</span>
+          <input formControlName="phone" placeholder="09xxxxxxxx" />
+        </label>
+
+        <label class="full">
+          <span>Avatar URL</span>
+          <input formControlName="avatarUrl" placeholder="https://..." />
+          <small>Dán link ảnh (jpg/png/webp). Nếu trống sẽ hiển thị chữ cái.</small>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="ghost" (click)="reset()">Hoàn tác</button>
+        <button type="submit" [disabled]="saving()">
+          {{ saving() ? 'Đang lưu...' : 'Lưu thay đổi' }}
+        </button>
+      </div>
+
+      <div class="msg" *ngIf="message()">{{ message() }}</div>
+    </form>
+  </div>
+</div>

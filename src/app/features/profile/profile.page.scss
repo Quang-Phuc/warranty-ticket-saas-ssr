@@ -1,0 +1,146 @@
+.profile {
+  padding: 18px;
+  color: var(--app-text);
+}
+
+.card {
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 1px solid var(--app-stroke);
+  background: linear-gradient(180deg, var(--app-surface), var(--app-surface2));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  padding: 18px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  .title {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .sub {
+    margin-top: 4px;
+    color: var(--app-muted);
+    font-size: 13px;
+  }
+}
+
+.avatar-preview {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  border: 1px solid var(--app-stroke);
+  overflow: hidden;
+  background: radial-gradient(circle at 30% 30%, var(--app-primary), var(--app-primary2));
+  display: grid;
+  place-items: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fallback {
+    color: white;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    span {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--app-muted);
+    }
+
+    input {
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--app-stroke);
+      background: color-mix(in srgb, var(--app-bg2) 88%, black 12%);
+      color: var(--app-text);
+      padding: 0 12px;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+
+      &:focus {
+        border-color: color-mix(in srgb, var(--app-primary) 60%, var(--app-stroke));
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--app-primary) 20%, transparent);
+      }
+    }
+
+    small {
+      color: var(--app-muted);
+      font-size: 12px;
+    }
+  }
+
+  .full {
+    grid-column: 1 / -1;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+
+  button {
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--app-stroke);
+    padding: 0 14px;
+    cursor: pointer;
+    color: var(--app-text);
+    background: linear-gradient(135deg, var(--app-primary), var(--app-primary2));
+    font-weight: 800;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  .ghost {
+    background: transparent;
+    font-weight: 800;
+
+    &:hover {
+      background: color-mix(in srgb, var(--app-primary) 12%, transparent);
+      box-shadow: none;
+    }
+  }
+}
+
+.msg {
+  margin-top: 10px;
+  color: var(--app-muted);
+  font-weight: 600;
+}
