@@ -17,6 +17,11 @@ export const routes: Routes = [
       import('./features/auth-pages/auth.routes').then((m) => m.AUTH_ROUTES),
   },
 
+  {
+    path: 'license',
+    loadChildren: () => import('./features/license/license.routes').then(m => m.LICENSE_ROUTES),
+  },
+
   // Portal
   {
     path: 'portal',

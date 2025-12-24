@@ -5,6 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, isApiFail, pickApiMessage, pickApiCode } from '../../shared/models';
+import { TokenStorage } from '../auth/token-storage'; // ✅ THÊM
 
 export type ApiClientOptions = {
   silent?: boolean;           // không toast HTTP error (interceptor skip)
@@ -15,7 +16,10 @@ export type ApiClientOptions = {
 export class ApiClient {
   private readonly baseUrl = environment.apiBaseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private tokens: TokenStorage // ✅ THÊM
+  ) {}
 
   private buildParams(params?: any): HttpParams {
     let p = new HttpParams();
@@ -27,9 +31,17 @@ export class ApiClient {
     return p;
   }
 
+  // ✅ ONLY CHANGE HERE: add Authorization header if token exists
   private buildHeaders(options?: ApiClientOptions): HttpHeaders | undefined {
     let headers = new HttpHeaders();
+
     if (options?.silent) headers = headers.set('x-skip-error-toast', '1');
+
+    const token = this.tokens.getAccessToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
     return headers;
   }
 
@@ -39,12 +51,10 @@ export class ApiClient {
    * - Body error (result='error' hoặc {code,messages}) => throwError(...) để interceptor / component bắt
    */
   private unwrapData<T>(envelope: any): Observable<T> {
-    // Case backend trả {code,messages}
     if (isApiFail(envelope)) {
       return throwError(() => ({ error: envelope }));
     }
 
-    // Case envelope kiểu success/error có field result
     if (envelope?.result === 'success') {
       return new Observable<T>((sub) => {
         sub.next(envelope.data as T);
@@ -52,7 +62,6 @@ export class ApiClient {
       });
     }
 
-    // Case envelope result='error' (nếu có)
     if (envelope?.result === 'error') {
       const normalized = {
         code: pickApiCode(envelope),
@@ -63,11 +72,9 @@ export class ApiClient {
       return throwError(() => ({ error: normalized }));
     }
 
-    // Fallback: không đúng format
     return throwError(() => ({ error: { message: 'Sai định dạng response', raw: envelope } }));
   }
 
-  // --- Public API: trả T (data) ---
   getData<T>(endpoint: string, params?: any, options?: ApiClientOptions): Observable<T> {
     const httpParams = this.buildParams(params);
     const headers = this.buildHeaders(options);
@@ -77,21 +84,24 @@ export class ApiClient {
       .pipe(
         map((envelope) => envelope as any),
         catchError((err) => throwError(() => err)),
-        // unwrapData trả Observable<T> nên cần switchMap
-        // dùng trick: map->unwrap bằng cách chain rxjs
       )
-      .pipe((source) => new Observable<T>((sub) => {
-        const s = source.subscribe({
-          next: (env) => {
-            this.unwrapData<T>(env).subscribe({
-              next: (data) => { sub.next(data); sub.complete(); },
-              error: (e) => sub.error(e),
-            });
-          },
-          error: (e) => sub.error(e),
-        });
-        return () => s.unsubscribe();
-      }));
+      .pipe((source) =>
+        new Observable<T>((sub) => {
+          const s = source.subscribe({
+            next: (env) => {
+              this.unwrapData<T>(env).subscribe({
+                next: (data) => {
+                  sub.next(data);
+                  sub.complete();
+                },
+                error: (e) => sub.error(e),
+              });
+            },
+            error: (e) => sub.error(e),
+          });
+          return () => s.unsubscribe();
+        })
+      );
   }
 
   postData<T>(endpoint: string, body: any = {}, options?: ApiClientOptions): Observable<T> {
@@ -99,18 +109,23 @@ export class ApiClient {
 
     return this.http
       .post<ApiEnvelope<T>>(`${this.baseUrl}/${endpoint}`, body, { headers })
-      .pipe((source) => new Observable<T>((sub) => {
-        const s = source.subscribe({
-          next: (env) => {
-            this.unwrapData<T>(env).subscribe({
-              next: (data) => { sub.next(data); sub.complete(); },
-              error: (e) => sub.error(e),
-            });
-          },
-          error: (e) => sub.error(e),
-        });
-        return () => s.unsubscribe();
-      }));
+      .pipe((source) =>
+        new Observable<T>((sub) => {
+          const s = source.subscribe({
+            next: (env) => {
+              this.unwrapData<T>(env).subscribe({
+                next: (data) => {
+                  sub.next(data);
+                  sub.complete();
+                },
+                error: (e) => sub.error(e),
+              });
+            },
+            error: (e) => sub.error(e),
+          });
+          return () => s.unsubscribe();
+        })
+      );
   }
 
   putData<T>(endpoint: string, body: any, options?: ApiClientOptions): Observable<T> {
@@ -118,17 +133,22 @@ export class ApiClient {
 
     return this.http
       .put<ApiEnvelope<T>>(`${this.baseUrl}/${endpoint}`, body, { headers })
-      .pipe((source) => new Observable<T>((sub) => {
-        const s = source.subscribe({
-          next: (env) => {
-            this.unwrapData<T>(env).subscribe({
-              next: (data) => { sub.next(data); sub.complete(); },
-              error: (e) => sub.error(e),
-            });
-          },
-          error: (e) => sub.error(e),
-        });
-        return () => s.unsubscribe();
-      }));
+      .pipe((source) =>
+        new Observable<T>((sub) => {
+          const s = source.subscribe({
+            next: (env) => {
+              this.unwrapData<T>(env).subscribe({
+                next: (data) => {
+                  sub.next(data);
+                  sub.complete();
+                },
+                error: (e) => sub.error(e),
+              });
+            },
+            error: (e) => sub.error(e),
+          });
+          return () => s.unsubscribe();
+        })
+      );
   }
 }

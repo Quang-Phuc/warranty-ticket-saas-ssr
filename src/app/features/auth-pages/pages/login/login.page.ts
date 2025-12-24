@@ -148,7 +148,9 @@ export class LoginPage {
 
   onModalConfirm() {
     this.closeModal();
-    this.router.navigateByUrl('/app/purchase-license');
+    this.router.navigateByUrl('/license/purchase');
+    this.router.navigate(['/license/purchase']);
+
   }
 
   onModalCancel() {
