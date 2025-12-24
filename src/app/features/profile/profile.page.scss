@@ -7,6 +7,13 @@
   color: var(--text);
 }
 
+/* ✅ page background will look nice (not white) */
+:host {
+  display: block;
+  background: var(--page);
+  min-height: 100vh;
+}
+
 .page-header {
   margin-bottom: 14px;
 
@@ -130,6 +137,12 @@
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
   }
 
+  /* ✅ readonly style: looks normal but cannot edit */
+  input.readonly {
+    cursor: not-allowed;
+    opacity: 0.85;
+  }
+
   small {
     font-size: 11px;
     color: #ff5a5a;
@@ -151,7 +164,7 @@
 
 .address-card {
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
   padding: 14px;
   border-radius: 16px;
   margin-top: 12px;
@@ -193,7 +206,6 @@
   }
 }
 
-/* Suggestion dropdown */
 .suggestions {
   position: absolute;
   z-index: 20;

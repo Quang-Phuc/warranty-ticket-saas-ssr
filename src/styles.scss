@@ -99,20 +99,25 @@ a { color: inherit; }
 }
 :root {
   --primary: #6366f1;
+
+  /* ✅ light theme - premium */
+  --page: #f6f7fb;
   --text: #111827;
-  --card: #ffffff;
-  --input: #f9fafb;
-  --border: rgba(0,0,0,0.12);
-  --muted: #f3f4f6;
-  --shadow: 0 8px 26px rgba(0,0,0,0.08);
+  --card: rgba(255, 255, 255, 0.92);
+  --input: rgba(255, 255, 255, 0.95);
+  --border: rgba(15, 23, 42, 0.12);
+  --muted: rgba(15, 23, 42, 0.06);
+  --shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
 }
 
 [data-theme='dark'] {
   --primary: #7c3aed;
+
+  --page: #050a1a;
   --text: #f9fafb;
-  --card: #0f172a;
-  --input: rgba(255,255,255,0.06);
-  --border: rgba(255,255,255,0.12);
-  --muted: rgba(255,255,255,0.08);
-  --shadow: 0 10px 30px rgba(0,0,0,0.55);
+  --card: rgba(15, 23, 42, 0.88);
+  --input: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.12);
+  --muted: rgba(255, 255, 255, 0.08);
+  --shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
 }

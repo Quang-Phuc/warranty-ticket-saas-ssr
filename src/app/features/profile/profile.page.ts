@@ -23,7 +23,6 @@ type Suggestion = {
 export class ProfilePage implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  // ✅ Signals
   saving = signal(false);
   message = signal<string | null>(null);
 
@@ -32,15 +31,12 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   avatarPreview = signal<string | null>(null);
 
-  // ✅ map cache
   maps = new Map<number, L.Map>();
   markers = new Map<number, L.Marker>();
 
-  // ✅ suggestion store for each address row
   suggestions = signal<Record<number, Suggestion[]>>({});
   loadingSuggest = signal<number | null>(null);
 
-  // ✅ form
   form: FormGroup;
 
   constructor(
@@ -50,7 +46,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   ) {
     this.form = this.fb.group({
       fullName: ['', [Validators.required]],
-      phone: ['', [Validators.required]],
+      phone: ['', [Validators.required]], // ✅ readonly in html
       email: ['', [Validators.email]],
       description: [''],
       avatarFile: [null],
@@ -59,7 +55,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadMockOrAuthUser();
+    this.loadAuthUser();
     this.ensureOneAddress();
     this.setupAddressSearchStreams();
   }
@@ -78,9 +74,9 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ init data
+  // ✅ init
   // =========================
-  loadMockOrAuthUser() {
+  loadAuthUser() {
     const user = this.auth.getCurrentUserSync();
 
     this.form.patchValue({
@@ -98,7 +94,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   addAddress() {
     this.addresses().push(
         this.fb.group({
-          label: ['Địa chỉ chính', Validators.required],
+          label: ['Cửa hàng', Validators.required], // ✅ bỏ "Địa chỉ chính"
           address: ['', Validators.required],
           lat: [null],
           lng: [null],
@@ -114,7 +110,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ avatar upload
+  // ✅ avatar
   // =========================
   onAvatarFileChange(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -141,13 +137,53 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ VALIDATION + focus missing
+  // ✅ Focus invalid field (FIX)
   // =========================
   focusFirstInvalid() {
-    const el = document.querySelector('.ng-invalid[formControlName], .ng-invalid[formControlName] input') as HTMLElement;
-    if (el) el.focus();
+    // 1) priority fields
+    const priority = ['fullName', 'phone', 'email', 'description'];
+
+    for (const key of priority) {
+      const c = this.form.get(key);
+      if (c && c.invalid) {
+        const el = document.querySelector(`[formControlName="${key}"]`) as HTMLElement;
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (el as HTMLInputElement).focus();
+          return;
+        }
+      }
+    }
+
+    // 2) addresses array
+    for (let i = 0; i < this.addresses().length; i++) {
+      const g = this.addresses().at(i);
+      const label = g.get('label');
+      const address = g.get('address');
+
+      if (label?.invalid) {
+        const el = document.querySelector(`#address-${i}-label`) as HTMLElement;
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (el as HTMLInputElement).focus();
+          return;
+        }
+      }
+
+      if (address?.invalid) {
+        const el = document.querySelector(`#address-${i}-address`) as HTMLElement;
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (el as HTMLInputElement).focus();
+          return;
+        }
+      }
+    }
   }
 
+  // =========================
+  // ✅ save
+  // =========================
   save() {
     this.message.set(null);
 
@@ -160,7 +196,6 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     this.saving.set(true);
 
-    // ✅ build payload
     const payload: any = {
       fullName: this.form.value.fullName,
       phone: this.form.value.phone,
@@ -169,12 +204,10 @@ export class ProfilePage implements OnInit, OnDestroy {
       addresses: this.form.value.addresses,
     };
 
-    // ✅ avatar upload: tạm gửi base64 hoặc multipart tùy backend
-    // (ở đây tao gửi base64 demo)
     if (this.avatarPreview()) payload.avatarBase64 = this.avatarPreview();
 
     this.api
-        .putData<any>('me', payload) // ✅ PUT /me
+        .putData<any>('me', payload)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -190,7 +223,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   reset() {
     this.form.reset();
-    this.loadMockOrAuthUser();
+    this.loadAuthUser();
     this.addresses().clear();
     this.ensureOneAddress();
     this.avatarPreview.set(null);
@@ -198,7 +231,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   // =========================
-  // ✅ MAP
+  // ✅ MAP logic giữ nguyên
   // =========================
   toggleMap(i: number) {
     if (this.openedMapIndex() === i) {
@@ -207,10 +240,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
 
     this.openedMapIndex.set(i);
-
-    setTimeout(() => {
-      this.initLeaflet(i);
-    }, 200);
+    setTimeout(() => this.initLeaflet(i), 200);
   }
 
   initLeaflet(i: number) {
@@ -226,9 +256,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     const mapEl = document.getElementById(`map-${i}`);
     if (!mapEl) return;
 
-    const map = L.map(mapEl, {
-      zoomControl: false,
-    }).setView([lat, lng], 14);
+    const map = L.map(mapEl, { zoomControl: false }).setView([lat, lng], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
@@ -236,22 +264,16 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    const marker = L.marker([lat, lng], {
-      draggable: true,
-    }).addTo(map);
-
+    const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
     marker.bindPopup('📍 Kéo hoặc click map để chọn vị trí');
 
-    // ✅ click map -> move marker + fill addr
     map.on('click', async (e: any) => {
       const lat = e.latlng.lat;
       const lng = e.latlng.lng;
-
       group.patchValue({ lat, lng, address: '⏳ Đang lấy địa chỉ...' });
       await this.setMarkerAndFillAddress(i, lat, lng, true);
     });
 
-    // ✅ drag marker -> reverse fill
     marker.on('dragend', async (ev: any) => {
       const pos = ev.target.getLatLng();
       group.patchValue({ lat: pos.lat, lng: pos.lng, address: '⏳ Đang lấy địa chỉ...' });
@@ -277,10 +299,7 @@ export class ProfilePage implements OnInit, OnDestroy {
 
     if (addr) {
       group.patchValue({ address: addr });
-
-      if (openPopup) {
-        marker.setPopupContent(`✅ Vị trí chọn<br>${addr}`).openPopup();
-      }
+      if (openPopup) marker.setPopupContent(`✅ Vị trí chọn<br>${addr}`).openPopup();
     }
   }
 
@@ -295,9 +314,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
   }
 
-  // =========================
-  // ✅ Current Location
-  // =========================
+  // ✅ GPS
   useCurrentLocation(i: number) {
     if (!navigator.geolocation) {
       this.message.set('❌ Trình duyệt không hỗ trợ GPS.');
@@ -318,36 +335,20 @@ export class ProfilePage implements OnInit, OnDestroy {
           const lng = pos.coords.longitude;
 
           const group = this.addresses().at(i);
-
-          group.patchValue({
-            lat,
-            lng,
-            address: '⏳ Đang lấy địa chỉ...',
-          });
+          group.patchValue({ lat, lng, address: '⏳ Đang lấy địa chỉ...' });
 
           await this.setMarkerAndFillAddress(i, lat, lng, true);
-
           this.gettingLocation.set(null);
         },
-        (err) => {
-          console.error(err);
-
-          if (err.code === 1) this.message.set('❌ Bạn đã từ chối quyền GPS.');
-          else this.message.set('❌ Không thể lấy vị trí hiện tại.');
-
+        () => {
+          this.message.set('❌ Không thể lấy vị trí hiện tại.');
           this.gettingLocation.set(null);
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 12000,
-          maximumAge: 0,
-        }
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
   }
 
-  // =========================
-  // ✅ Address Autocomplete
-  // =========================
+  // ✅ Autocomplete
   private search$ = new Subject<{ i: number; q: string }>();
 
   setupAddressSearchStreams() {
@@ -372,21 +373,21 @@ export class ProfilePage implements OnInit, OnDestroy {
             this.suggestions.set(s);
             this.loadingSuggest.set(null);
           },
-          error: () => {
-            this.loadingSuggest.set(null);
-          },
+          error: () => this.loadingSuggest.set(null),
         });
   }
 
   onAddressTyping(i: number) {
     const group = this.addresses().at(i);
     const q = group.value.address || '';
+
     if (q.trim().length < 3) {
       const s = { ...this.suggestions() };
       s[i] = [];
       this.suggestions.set(s);
       return;
     }
+
     this.search$.next({ i, q });
   }
 
@@ -395,22 +396,14 @@ export class ProfilePage implements OnInit, OnDestroy {
     const lat = parseFloat(sug.lat);
     const lng = parseFloat(sug.lon);
 
-    group.patchValue({
-      address: sug.display_name,
-      lat,
-      lng,
-    });
+    group.patchValue({ address: sug.display_name, lat, lng });
 
-    // clear suggestions
     const s = { ...this.suggestions() };
     s[i] = [];
     this.suggestions.set(s);
 
-    // auto open map
     if (this.openedMapIndex() !== i) this.toggleMap(i);
 
-    setTimeout(() => {
-      this.setMarkerAndFillAddress(i, lat, lng, true);
-    }, 350);
+    setTimeout(() => this.setMarkerAndFillAddress(i, lat, lng, true), 350);
   }
 }

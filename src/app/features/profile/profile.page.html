@@ -39,7 +39,7 @@
 
             <div class="field">
                 <label>Số điện thoại <span>*</span></label>
-                <input formControlName="phone" placeholder="VD: 0987xxxxxx" />
+                <input formControlName="phone" placeholder="VD: 0987xxxxxx" readonly class="readonly" />
                 <small *ngIf="form.get('phone')?.touched && form.get('phone')?.invalid">Bắt buộc nhập</small>
             </div>
 
@@ -61,28 +61,19 @@
                 <button type="button" class="btn ghost" (click)="addAddress()">+ Thêm địa chỉ</button>
             </div>
 
-            <div
-                    class="address-card"
-                    *ngFor="let a of addresses().controls; let i = index"
-                    [formGroupName]="i"
-            >
+            <div class="address-card" *ngFor="let a of addresses().controls; let i = index" [formGroupName]="i">
+
                 <div class="row-head">
-                    <div class="field">
-                        <label>Tiêu đề <span>*</span></label>
-                        <input formControlName="label" placeholder="VD: Cửa hàng, Chi nhánh 2..." />
-                    </div>
+
 
                     <div class="actions">
                         <button type="button" class="btn tiny" (click)="toggleMap(i)">
                             🗺 {{ openedMapIndex() === i ? 'Ẩn bản đồ' : 'Bản đồ' }}
                         </button>
 
-                        <button
-                                type="button"
-                                class="btn tiny"
+                        <button type="button" class="btn tiny"
                                 [disabled]="gettingLocation() === i"
-                                (click)="useCurrentLocation(i)"
-                        >
+                                (click)="useCurrentLocation(i)">
                             📍 {{ gettingLocation() === i ? 'Đang lấy...' : 'Vị trí hiện tại' }}
                         </button>
 
@@ -94,20 +85,15 @@
 
                 <div class="field">
                     <label>Địa chỉ <span>*</span></label>
-                    <input
-                            formControlName="address"
-                            placeholder="Nhập địa chỉ để gợi ý..."
-                            (input)="onAddressTyping(i)"
-                            autocomplete="off"
+                    <input [id]="'address-' + i + '-address'"
+                           formControlName="address"
+                           placeholder="Nhập địa chỉ để gợi ý..."
+                           (input)="onAddressTyping(i)"
+                           autocomplete="off"
                     />
 
-                    <!-- Suggestion -->
                     <div class="suggestions" *ngIf="suggestions()[i]?.length">
-                        <div
-                                class="suggest-item"
-                                *ngFor="let s of suggestions()[i]"
-                                (click)="selectSuggestion(i, s)"
-                        >
+                        <div class="suggest-item" *ngFor="let s of suggestions()[i]" (click)="selectSuggestion(i, s)">
                             {{ s.display_name }}
                         </div>
                     </div>
@@ -115,7 +101,6 @@
                     <small *ngIf="a.get('address')?.touched && a.get('address')?.invalid">Bắt buộc nhập</small>
                 </div>
 
-                <!-- Map -->
                 <div class="map-wrap" *ngIf="openedMapIndex() === i">
                     <div class="map" [id]="'map-' + i"></div>
                     <div class="map-hint">
@@ -125,7 +110,6 @@
             </div>
         </div>
 
-        <!-- footer -->
         <div class="form-footer">
             <button type="button" class="btn ghost" (click)="reset()">Hoàn tác</button>
             <button type="submit" class="btn primary" [disabled]="saving()">
