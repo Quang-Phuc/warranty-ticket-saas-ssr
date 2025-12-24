@@ -1,16 +1,27 @@
-// src/app/core/auth/auth.interceptor.ts
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { TokenStorage } from './token-storage';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const tokens = inject(TokenStorage);
-  const token = tokens.getAccessToken();
+  const tokenStorage = inject(TokenStorage);
+  const token = tokenStorage.getAccessToken();
 
-  // ✅ Không có token thì gửi request bình thường
-  if (!token) return next(req);
+  // ✅ nếu chưa login hoặc token null thì bỏ qua
+  if (!token) {
+    return next(req);
+  }
 
-  // ✅ Đã có token => gắn vào Authorization header
+  // ✅ bỏ qua các request auth
+  const isAuthRequest =
+    req.url.includes('/auth/login') ||
+    req.url.includes('/auth/register') ||
+    req.url.includes('/auth/refresh');
+
+  if (isAuthRequest) {
+    return next(req);
+  }
+
+  // ✅ clone request và gắn Bearer token
   const authReq = req.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,

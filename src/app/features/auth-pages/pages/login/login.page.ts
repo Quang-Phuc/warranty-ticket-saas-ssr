@@ -73,12 +73,14 @@ export class LoginPage {
       next: (res) => {
         this.loading.set(false);
 
-        // ✅ Map LoginData => CurrentUser
         const mappedUser = this.mapLoginDataToCurrentUser(res);
+        const expiryDate = (res as any).expiryDate;
 
-        const expiryDate = (res as any).expiryDate; // backend trả thêm
+        // ✅ luôn lưu token trước để mua license được
+        this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
+
+        // ✅ không có expiryDate thì login bình thường
         if (!expiryDate) {
-          this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
           this.router.navigateByUrl('/app');
           return;
         }
@@ -87,7 +89,7 @@ export class LoginPage {
         const exp = new Date(expiryDate);
         const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-        // ✅ expired => block login
+        // ✅ expired => chặn vào app, nhưng token vẫn có để mua
         if (diffDays < 0) {
           this.pendingLoginData = res;
           this.openModal({
@@ -98,10 +100,12 @@ export class LoginPage {
             cancelText: 'Đóng',
             confirmStyle: 'danger',
           });
+
+          // ✅ không cho vào /app
           return;
         }
 
-        // ✅ <= 7 days => warning modal
+        // ✅ <= 7 days => warn modal nhưng vẫn cho vào app nếu bấm "Để sau"
         if (diffDays <= 7) {
           this.pendingLoginData = res;
           this.openModal({
@@ -112,11 +116,11 @@ export class LoginPage {
             cancelText: 'Để sau',
             confirmStyle: 'warning',
           });
+
           return;
         }
 
         // ✅ normal login
-        this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
         this.router.navigateByUrl('/app');
       },
       error: (err) => {
@@ -150,25 +154,23 @@ export class LoginPage {
     this.closeModal();
     this.router.navigateByUrl('/license/purchase');
     this.router.navigate(['/license/purchase']);
-
   }
 
   onModalCancel() {
-    const m = this.modal();
-    this.closeModal();
+    const expiryDate = (this.pendingLoginData as any)?.expiryDate;
+    if (expiryDate) {
+      const exp = new Date(expiryDate);
+      const now = new Date();
+      const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-    // ✅ if warning only => allow login
-    if (this.pendingLoginData && m.confirmStyle === 'warning') {
-      const res = this.pendingLoginData;
-      this.pendingLoginData = null;
-
-      const mappedUser = this.mapLoginDataToCurrentUser(res);
-
-      this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
-      this.router.navigateByUrl('/app');
-      return;
+      if (diffDays < 0) {
+        // expired => đóng modal thì logout luôn
+        this.auth.logout();
+        return;
+      }
     }
 
-    this.pendingLoginData = null;
+    // warning => cancel thì vẫn vào app
+    this.router.navigateByUrl('/app');
   }
 }
