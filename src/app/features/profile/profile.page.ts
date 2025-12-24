@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal, OnDestroy } from '@angular/core';
+import { Component, signal, OnDestroy, AfterViewInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -23,13 +23,14 @@ type NominatimSearchItem = {
   templateUrl: './profile.page.html',
   styleUrl: './profile.page.scss',
 })
-export class ProfilePage implements OnDestroy {
+export class ProfilePage implements OnDestroy, AfterViewInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.form = this.fb.group({
       fullName: ['', Validators.required],
-      email: [''],
+      companyName: ['', Validators.required],
+      position: [''],
+      email: ['', [Validators.email]],
       phone: [''],
-      industry: [''],
       description: [''],
       website: [''],
       addresses: this.fb.array<FormGroup>([]),
@@ -49,13 +50,24 @@ export class ProfilePage implements OnDestroy {
   maps = new Map<number, L.Map>();
   markers = new Map<number, L.Marker>();
 
+  // ✅ debounce per address index
+  private addressTimers = new Map<number, any>();
+  private abortControllers = new Map<number, AbortController>();
+
+  // ✅ cache query
+  private searchCache = new Map<string, NominatimSearchItem[]>();
+
   ngOnInit() {
     if (this.addresses().length === 0) this.addAddress();
     this.loadProfile();
   }
 
+  ngAfterViewInit() {}
+
   ngOnDestroy() {
     this.maps.forEach((m) => m.remove());
+    this.addressTimers.forEach((t) => clearTimeout(t));
+    this.abortControllers.forEach((a) => a.abort());
   }
 
   // ===========================
@@ -78,9 +90,13 @@ export class ProfilePage implements OnDestroy {
 
   removeAddress(i: number) {
     this.addresses().removeAt(i);
+
     this.maps.get(i)?.remove();
     this.maps.delete(i);
     this.markers.delete(i);
+
+    this.addressSuggestions.update((s) => ({ ...s, [i]: [] }));
+
     if (this.openedMapIndex() === i) this.openedMapIndex.set(null);
   }
 
@@ -101,7 +117,6 @@ export class ProfilePage implements OnDestroy {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // ✅ preview base64
     const reader = new FileReader();
     reader.onload = () => {
       this.avatarPreview.set(reader.result as string);
@@ -117,9 +132,10 @@ export class ProfilePage implements OnDestroy {
       next: (res) => {
         this.form.patchValue({
           fullName: res.fullName,
+          companyName: res.companyName,
+          position: res.position,
           email: res.email,
           phone: res.phone,
-          industry: res.industry,
           description: res.description,
           website: res.website,
         });
@@ -144,27 +160,61 @@ export class ProfilePage implements OnDestroy {
   }
 
   // ===========================
-  // ✅ Address Autocomplete
+  // ✅ Address Autocomplete (FAST + DEBOUNCE + CANCEL + CACHE)
   // ===========================
-  async onAddressInput(i: number) {
+  onAddressInput(i: number) {
     const group = this.addresses().at(i);
-    const q = group.value.address;
+    const q = (group.value.address || '').trim();
 
-    if (!q || q.length < 4) {
+    // clear old suggestions quickly
+    if (q.length < 4) {
       this.addressSuggestions.update((s) => ({ ...s, [i]: [] }));
       return;
     }
 
-    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(
-        q
-    )}&addressdetails=1&limit=6&accept-language=vi`;
+    // ✅ debounce per index
+    clearTimeout(this.addressTimers.get(i));
+    const timer = setTimeout(() => this.doSearchAddress(i, q), 450);
+    this.addressTimers.set(i, timer);
+  }
 
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'WarrantyPro-App' },
-    });
+  private async doSearchAddress(i: number, q: string) {
+    // ✅ cache hit
+    if (this.searchCache.has(q)) {
+      this.addressSuggestions.update((s) => ({ ...s, [i]: this.searchCache.get(q)! }));
+      return;
+    }
 
-    const data = (await res.json()) as NominatimSearchItem[];
-    this.addressSuggestions.update((s) => ({ ...s, [i]: data }));
+    // ✅ cancel old request
+    const old = this.abortControllers.get(i);
+    if (old) old.abort();
+    const controller = new AbortController();
+    this.abortControllers.set(i, controller);
+
+    // ✅ prevent mismatch response (store current query)
+    const currentQuery = q;
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(
+          q
+      )}&addressdetails=1&limit=6&accept-language=vi&email=test@gmail.com`;
+
+      const res = await fetch(url, {
+        signal: controller.signal,
+      });
+
+      const data = (await res.json()) as NominatimSearchItem[];
+
+      // ✅ only update if user hasn't changed query
+      const latest = (this.addresses().at(i).value.address || '').trim();
+      if (latest !== currentQuery) return;
+
+      this.searchCache.set(q, data);
+      this.addressSuggestions.update((s) => ({ ...s, [i]: data }));
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
+      this.addressSuggestions.update((s) => ({ ...s, [i]: [] }));
+    }
   }
 
   selectSuggestion(i: number, s: NominatimSearchItem) {
@@ -195,14 +245,14 @@ export class ProfilePage implements OnDestroy {
           marker2.setLatLng([lat, lng]);
           map2.setView([lat, lng], 16, { animate: true });
         }
-      }, 450);
+      }, 380);
     }
 
     this.addressSuggestions.update((state) => ({ ...state, [i]: [] }));
   }
 
   // ===========================
-  // ✅ Map + Reverse geocode
+  // ✅ Map + Reverse geocode (FAST RESPONSE UX)
   // ===========================
   toggleMap(i: number) {
     if (this.openedMapIndex() === i) {
@@ -210,7 +260,7 @@ export class ProfilePage implements OnDestroy {
       return;
     }
     this.openedMapIndex.set(i);
-    setTimeout(() => this.initMap(i), 60);
+    setTimeout(() => this.initMap(i), 50);
   }
 
   initMap(i: number) {
@@ -239,40 +289,40 @@ export class ProfilePage implements OnDestroy {
 
     const popup = L.popup();
 
-    marker.on('dragend', async () => {
-      const pos = marker.getLatLng();
-      group.patchValue({ lat: pos.lat, lng: pos.lng });
+    const updateWithReverse = async (pos: L.LatLng) => {
+      // ✅ show popup immediately
+      popup.setLatLng(pos).setContent(`📍 Đang lấy địa chỉ...`).openOn(map);
 
       const addr = await this.reverseGeocode(pos.lat, pos.lng);
       if (addr) group.patchValue({ address: addr });
 
-      popup.setLatLng(pos).setContent(`📍 ${addr || 'Đã chọn'}`).openOn(map);
+      popup.setLatLng(pos).setContent(`📍 ${addr || 'Đã chọn vị trí'}`).openOn(map);
+    };
+
+    marker.on('dragend', async () => {
+      const pos = marker.getLatLng();
+      group.patchValue({ lat: pos.lat, lng: pos.lng });
+      await updateWithReverse(pos);
     });
 
     map.on('click', async (e: any) => {
       const pos = e.latlng;
-
       marker.setLatLng(pos);
       group.patchValue({ lat: pos.lat, lng: pos.lng });
 
-      const addr = await this.reverseGeocode(pos.lat, pos.lng);
-      if (addr) group.patchValue({ address: addr });
-
-      popup.setLatLng(pos).setContent(`📍 ${addr || 'Đã chọn'}`).openOn(map);
-
       map.setView(pos, 16, { animate: true });
+      await updateWithReverse(pos);
     });
 
     this.maps.set(i, map);
     this.markers.set(i, marker);
-
-    setTimeout(() => map.invalidateSize(), 300);
+    setTimeout(() => map.invalidateSize(), 180);
   }
 
   async reverseGeocode(lat: number, lng: number): Promise<string | null> {
     try {
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=vi`;
-      const res = await fetch(url, { headers: { 'User-Agent': 'WarrantyPro-App' } });
+      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=vi&email=test@gmail.com`;
+      const res = await fetch(url);
       const data = await res.json();
       return data?.display_name || null;
     } catch {
@@ -281,16 +331,27 @@ export class ProfilePage implements OnDestroy {
   }
 
   // ===========================
-  // ✅ Save profile to API (PUT /me)
+  // ✅ Focus first invalid field
+  // ===========================
+  private focusFirstInvalid() {
+    const el = document.querySelector('.ng-invalid[data-focus="true"]') as HTMLElement;
+    if (el) el.focus();
+  }
+
+  // ===========================
+  // ✅ Save profile to API
   // ===========================
   save() {
+    this.message.set(null);
+
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      setTimeout(() => this.focusFirstInvalid(), 20);
       this.message.set('❌ Vui lòng nhập đầy đủ thông tin bắt buộc.');
       return;
     }
 
     this.saving.set(true);
-    this.message.set(null);
 
     const payload = {
       ...this.form.value,

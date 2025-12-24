@@ -16,12 +16,7 @@
 
                 <label class="upload">
                     Đổi ảnh
-                    <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            (change)="onAvatarFileChange($event)"
-                    />
+                    <input type="file" accept="image/*" hidden (change)="onAvatarFileChange($event)" />
                 </label>
             </div>
         </div>
@@ -30,7 +25,19 @@
             <div class="grid">
                 <label>
                     <span>Họ tên *</span>
-                    <input class="field" formControlName="fullName" placeholder="Nguyễn Văn A" />
+                    <input class="field" formControlName="fullName" placeholder="Nguyễn Văn A"
+                           [attr.data-focus]="true" />
+                </label>
+
+                <label>
+                    <span>Tên doanh nghiệp *</span>
+                    <input class="field" formControlName="companyName" placeholder="WarrantyPro"
+                           [attr.data-focus]="true" />
+                </label>
+
+                <label>
+                    <span>Chức vụ</span>
+                    <input class="field" formControlName="position" placeholder="Owner / Admin / CSKH..." />
                 </label>
 
                 <label>
@@ -41,11 +48,6 @@
                 <label>
                     <span>Số điện thoại</span>
                     <input class="field" formControlName="phone" placeholder="09xxxxxxxx" />
-                </label>
-
-                <label>
-                    <span>Ngành nghề</span>
-                    <input class="field" formControlName="industry" placeholder="Gara / Điện thoại / Điện lạnh..." />
                 </label>
 
                 <label class="full">
@@ -63,42 +65,31 @@
                 <div class="section-head">
                     <div>
                         <div class="stitle">Địa chỉ (nhiều chi nhánh)</div>
-                        <div class="sdesc">
-                            Gõ địa chỉ để autocomplete, chọn sẽ zoom map. Click map sẽ tự fill địa chỉ.
-                        </div>
+                        <div class="sdesc">Gõ địa chỉ → autocomplete nhanh, chọn sẽ zoom map.</div>
                     </div>
                     <button class="add" type="button" (click)="addAddress()">+ Thêm địa chỉ</button>
                 </div>
 
                 <div class="addr-list">
-                    <div
-                            class="addr"
-                            *ngFor="let a of addresses().controls; let i = index"
-                            [formGroup]="a"
-                    >
+                    <div class="addr" *ngFor="let a of addresses().controls; let i = index" [formGroup]="a">
                         <div class="addr-grid">
                             <label>
                                 <span>Tên chi nhánh *</span>
-                                <input class="field" formControlName="name" placeholder="VD: Chi nhánh Quận 5" />
+                                <input class="field" formControlName="name" placeholder="VD: Chi nhánh Quận 5"
+                                       [attr.data-focus]="true" />
                             </label>
 
                             <button class="remove" type="button" (click)="removeAddress(i)">×</button>
 
                             <label class="full">
                                 <span>Địa chỉ *</span>
-                                <input
-                                        class="field"
-                                        formControlName="address"
-                                        placeholder="VD: 12 Nguyễn Trãi, Q5, TP.HCM"
-                                        (input)="onAddressInput(i)"
-                                />
+                                <input class="field" formControlName="address"
+                                       placeholder="VD: 12 Nguyễn Trãi, Q5, TP.HCM"
+                                       (input)="onAddressInput(i)"
+                                       [attr.data-focus]="true" />
 
                                 <div class="suggestions" *ngIf="addressSuggestions()[i]?.length">
-                                    <div
-                                            class="s-item"
-                                            *ngFor="let s of addressSuggestions()[i]"
-                                            (click)="selectSuggestion(i, s)"
-                                    >
+                                    <div class="s-item" *ngFor="let s of addressSuggestions()[i]" (click)="selectSuggestion(i, s)">
                                         {{ s.display_name }}
                                     </div>
                                 </div>

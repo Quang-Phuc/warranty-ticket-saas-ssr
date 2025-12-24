@@ -262,3 +262,11 @@
   margin-top: 12px;
   opacity: 0.9;
 }
+.field.ng-invalid.ng-touched {
+  border-color: rgba(239, 68, 68, 0.9) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+}
+
+.field.ng-invalid.ng-touched::placeholder {
+  color: rgba(239, 68, 68, 0.7);
+}
