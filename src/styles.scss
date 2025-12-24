@@ -97,3 +97,22 @@ a { color: inherit; }
 .cdk-overlay-pane {
   z-index: 99999 !important;
 }
+:root {
+  --primary: #6366f1;
+  --text: #111827;
+  --card: #ffffff;
+  --input: #f9fafb;
+  --border: rgba(0,0,0,0.12);
+  --muted: #f3f4f6;
+  --shadow: 0 8px 26px rgba(0,0,0,0.08);
+}
+
+[data-theme='dark'] {
+  --primary: #7c3aed;
+  --text: #f9fafb;
+  --card: #0f172a;
+  --input: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+  --muted: rgba(255,255,255,0.08);
+  --shadow: 0 10px 30px rgba(0,0,0,0.55);
+}
