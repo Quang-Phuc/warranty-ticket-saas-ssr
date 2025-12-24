@@ -1,94 +1,98 @@
 <div class="auth-wrap">
-    <div class="bg-shape s1" aria-hidden="true"></div>
-    <div class="bg-shape s2" aria-hidden="true"></div>
-    <div class="bg-noise" aria-hidden="true"></div>
+  <div class="bg-shape s1" aria-hidden="true"></div>
+  <div class="bg-shape s2" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
 
-    <div class="auth-container single">
-        <main class="auth-card">
-            <!-- Brand top -->
-            <a class="brand-top" routerLink="/">
-                WARRANTY<span>PRO</span>
-            </a>
+  <div class="auth-container single">
+    <main class="auth-card">
+      <a class="brand-top" routerLink="/">
+        WARRANTY<span>PRO</span>
+      </a>
 
-            <div class="card-head">
-                <div class="badge-trial">
-                    <span class="dot"></span>
-                    Dùng thử miễn phí 14 ngày • Không cần thẻ
-                </div>
+      <div class="card-head">
+        <div class="badge-trial">
+          <span class="dot"></span>
+          Dùng thử miễn phí 14 ngày • Không cần thẻ
+        </div>
 
-                <h1 class="title">Chào mừng trở lại</h1>
-                <p class="subtitle">
-                    Đăng nhập để quản lý bảo hành &amp; sửa chữa gọn hơn.
-                </p>
-            </div>
+        <h1 class="title">Chào mừng trở lại</h1>
+        <p class="subtitle">
+          Đăng nhập để quản lý bảo hành &amp; sửa chữa gọn hơn.
+        </p>
+      </div>
 
-            <!-- Error banner -->
-            <div class="error-banner" *ngIf="errorMessage() as msg">
-                <span class="e-ic">⚠️</span>
-                <span class="e-txt">{{ msg }}</span>
-            </div>
+      <div class="error-banner" *ngIf="errorMessage() as msg">
+        <span class="e-ic">⚠️</span>
+        <span class="e-txt">{{ msg }}</span>
+      </div>
 
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
-                <div class="field">
-                    <label class="label">Tài khoản</label>
-                    <div class="input-shell">
-                        <span class="icon">👤</span>
-                        <input
-                                type="text"
-                                class="input"
-                                placeholder="Tên đăng nhập hoặc Email"
-                                formControlName="username"
-                                autocomplete="username"
-                        />
-                    </div>
-                </div>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
+        <div class="field">
+          <label class="label">Tài khoản</label>
+          <div class="input-shell">
+            <span class="icon">👤</span>
+            <input
+              type="text"
+              class="input"
+              placeholder="Tên đăng nhập hoặc Email"
+              formControlName="username"
+              autocomplete="username"
+            />
+          </div>
+        </div>
 
-                <div class="field">
-                    <label class="label">Mật khẩu</label>
-                    <div class="input-shell">
-                        <span class="icon">🔒</span>
-                        <input
-                                class="input"
-                                [type]="showPassword ? 'text' : 'password'"
-                                placeholder="Mật khẩu"
-                                formControlName="password"
-                                autocomplete="current-password"
-                        />
-                        <button type="button" class="eye" (click)="togglePassword()" aria-label="Toggle password">
-                            {{ showPassword ? '🙈' : '👁️' }}
-                        </button>
-                    </div>
-                </div>
+        <div class="field">
+          <label class="label">Mật khẩu</label>
+          <div class="input-shell">
+            <span class="icon">🔒</span>
+            <input
+              class="input"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Mật khẩu"
+              formControlName="password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="eye" (click)="togglePassword()" aria-label="Toggle password">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
 
-                <div class="actions">
-                    <a routerLink="/forgot-password" class="forgot-link">Quên mật khẩu?</a>
-                    <button type="button" class="link-btn" (click)="mockLogin()">Mock login</button>
-                </div>
+        <div class="actions">
+          <a routerLink="/forgot-password" class="forgot-link">Quên mật khẩu?</a>
+        </div>
 
-                <div class="button-wrapper">
-                    <ui-button
-                            class="login-btn"
-                            variant="primary"
-                            [loading]="loading()"
-                            type="submit"
-                    >
-                        Đăng nhập
-                    </ui-button>
-                </div>
+        <div class="button-wrapper">
+          <ui-button class="login-btn" variant="primary" [loading]="loading()" type="submit">
+            Đăng nhập
+          </ui-button>
+        </div>
 
-                <div class="divider"><span>hoặc</span></div>
+        <div class="divider"><span>hoặc</span></div>
 
-                <button type="button" class="btn-ghost" routerLink="/register">
-                    ✨ Bắt đầu dùng thử miễn phí
-                    <span class="arrow">→</span>
-                </button>
-            </form>
+        <button type="button" class="btn-ghost" routerLink="/register">
+          ✨ Bắt đầu dùng thử miễn phí
+          <span class="arrow">→</span>
+        </button>
+      </form>
 
-            <div class="mini-benefits">
-                <div class="mb-item"><span>✅</span> QR bảo hành / Serial / IMEI</div>
-                <div class="mb-item"><span>✅</span> Ticket chuẩn hóa + timeline</div>
-                <div class="mb-item"><span>✅</span> Portal tra cứu cho khách</div>
-            </div>
-        </main>
-    </div>
+      <div class="mini-benefits">
+        <div class="mb-item"><span>✅</span> QR bảo hành / Serial / IMEI</div>
+        <div class="mb-item"><span>✅</span> Ticket chuẩn hóa + timeline</div>
+        <div class="mb-item"><span>✅</span> Portal tra cứu cho khách</div>
+      </div>
+    </main>
+  </div>
 </div>
+
+<ui-confirm-modal
+  [open]="modal().open"
+  [title]="modal().title"
+  [message]="modal().message"
+  [icon]="modal().icon"
+  [confirmText]="modal().confirmText"
+  [cancelText]="modal().cancelText"
+  [confirmStyle]="modal().confirmStyle"
+  (confirm)="onModalConfirm()"
+  (cancel)="onModalCancel()"
+></ui-confirm-modal>

@@ -1,98 +1,172 @@
-// src/app/features/auth/pages/login/login.page.ts
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs/operators';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 
+import { AuthApiService, LoginData } from '../../data-access/auth-api.service';
 import { AuthService, CurrentUser } from '../../../../core/auth/auth.service';
+
+import { UiConfirmModalComponent, ConfirmStyle } from '../../../../shared/ui/ui-confirm-modal/ui-confirm-modal.component';
 import { ButtonComponent } from '../../../../shared/ui/components/button/button.component';
-import { AuthApiService } from '../../data-access/auth-api.service';
+
+type ModalState = {
+  open: boolean;
+  title: string;
+  message: string;
+  icon: string;
+  confirmText: string;
+  cancelText: string;
+  confirmStyle: ConfirmStyle;
+};
 
 @Component({
+  selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonComponent, UiConfirmModalComponent],
   templateUrl: './login.page.html',
-  styleUrl: './login.page.scss',
+  styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
+  private fb = inject(FormBuilder);
+  private api = inject(AuthApiService);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
   loading = signal(false);
   errorMessage = signal<string | null>(null);
-
   showPassword = false;
+
+  loginForm = this.fb.group({
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+  });
+
+  modal = signal<ModalState>({
+    open: false,
+    title: '',
+    message: '',
+    icon: '⚡',
+    confirmText: 'Xác nhận',
+    cancelText: 'Hủy',
+    confirmStyle: 'primary',
+  });
+
+  private pendingLoginData: LoginData | null = null;
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
 
-  loginForm = new FormGroup({
-    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-  });
-
-  constructor(
-    private authService: AuthService,
-    private authApi: AuthApiService,
-    private router: Router
-  ) {}
-
-  private toCurrentUser(data: any): CurrentUser {
-    // Backend JwtResponse: id, userName, roles, ... (fullName chưa có)
-    // => map hợp lệ cho CurrentUser của FE
-    const username = (data?.userName ?? data?.username ?? '').toString();
-    const id = Number(data?.id ?? 0) || 0;
-    const roles = Array.isArray(data?.roles) ? data.roles : [];
-
-    return {
-      id,
-      username: username || 'unknown',
-      // chưa có fullName từ backend => dùng username tạm
-      fullName: (data?.fullName ?? username ?? 'User').toString(),
-      roles,
-    };
-  }
-
   onSubmit() {
+    this.errorMessage.set(null);
+
     if (this.loginForm.invalid) {
-      this.errorMessage.set('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
+      this.loginForm.markAllAsTouched();
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
-    const { username, password } = this.loginForm.getRawValue();
-    const payload = { username, password };
+    const body = this.loginForm.getRawValue() as { username: string; password: string };
 
-    this.authApi
-      .login(payload)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (data) => {
-          // ✅ LƯU MENU + THEME TỪ API LOGIN
-          localStorage.setItem('navGroups', JSON.stringify(data.navGroups ?? []));
-          localStorage.setItem('ui.theme', data.ui?.theme ?? 'light');
+    this.api.login(body).subscribe({
+      next: (res) => {
+        this.loading.set(false);
 
-          // ✅ Map về CurrentUser đúng kiểu FE
-          const currentUser = this.toCurrentUser(data);
+        // ✅ Map LoginData => CurrentUser
+        const mappedUser = this.mapLoginDataToCurrentUser(res);
 
-          // ✅ Lưu token + user
-          this.authService.loginSuccess(
-            data.token,
-            data.refreshToken ?? '',
-            currentUser
-          );
-
+        const expiryDate = (res as any).expiryDate; // backend trả thêm
+        if (!expiryDate) {
+          this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
           this.router.navigateByUrl('/app');
-        },
-        error: () => {
-          // HTTP error đã interceptor toast rồi, nếu muốn show text dưới form:
-          this.errorMessage.set('Không thể kết nối đến máy chủ. Vui lòng thử lại.');
-        },
-      });
+          return;
+        }
+
+        const now = new Date();
+        const exp = new Date(expiryDate);
+        const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+        // ✅ expired => block login
+        if (diffDays < 0) {
+          this.pendingLoginData = res;
+          this.openModal({
+            title: 'License đã hết hạn',
+            message: `License của bạn đã hết hạn từ ${exp.toLocaleDateString()}. Vui lòng mua thêm để tiếp tục sử dụng.`,
+            icon: '⛔',
+            confirmText: 'Mua license',
+            cancelText: 'Đóng',
+            confirmStyle: 'danger',
+          });
+          return;
+        }
+
+        // ✅ <= 7 days => warning modal
+        if (diffDays <= 7) {
+          this.pendingLoginData = res;
+          this.openModal({
+            title: 'Sắp hết hạn license',
+            message: `License sẽ hết hạn sau ${diffDays} ngày (${exp.toLocaleDateString()}). Bạn có muốn mua thêm ngay không?`,
+            icon: '⚠️',
+            confirmText: 'Mua ngay',
+            cancelText: 'Để sau',
+            confirmStyle: 'warning',
+          });
+          return;
+        }
+
+        // ✅ normal login
+        this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
+        this.router.navigateByUrl('/app');
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(err?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+      },
+    });
   }
 
-  mockLogin() {
-    this.authService.mockLogin();
-    this.router.navigateByUrl('/app');
+  private mapLoginDataToCurrentUser(res: LoginData): CurrentUser {
+    return {
+      id: res.id ?? 0,
+      username: res.userName ?? '',
+      fullName: res.userName ?? '', // backend chưa có fullName thì dùng tạm userName
+      roles: res.roles ?? [],
+      email: res.emailFace ?? undefined,
+      phone: undefined,
+      avatarUrl: undefined,
+    };
+  }
+
+  openModal(p: Partial<ModalState>) {
+    this.modal.set({ ...this.modal(), open: true, ...p });
+  }
+
+  closeModal() {
+    this.modal.set({ ...this.modal(), open: false });
+  }
+
+  onModalConfirm() {
+    this.closeModal();
+    this.router.navigateByUrl('/app/purchase-license');
+  }
+
+  onModalCancel() {
+    const m = this.modal();
+    this.closeModal();
+
+    // ✅ if warning only => allow login
+    if (this.pendingLoginData && m.confirmStyle === 'warning') {
+      const res = this.pendingLoginData;
+      this.pendingLoginData = null;
+
+      const mappedUser = this.mapLoginDataToCurrentUser(res);
+
+      this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
+      this.router.navigateByUrl('/app');
+      return;
+    }
+
+    this.pendingLoginData = null;
   }
 }

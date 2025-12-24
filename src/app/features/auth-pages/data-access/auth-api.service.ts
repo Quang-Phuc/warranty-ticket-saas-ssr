@@ -26,17 +26,20 @@ export type UiConfig = {
 export interface LoginData {
   id?: number;
   token: string;
-  type?: string; // "Bearer"
+  type?: string;
   refreshToken?: string;
   userName?: string;
   emailFace?: string;
   isFace?: boolean;
   roles?: string[];
 
-  // ✅ new
   ui?: UiConfig;
   navGroups?: NavGroup[];
+
+  // ✅ NEW: Ngày hết hạn license (ISO string)
+  expiryDate?: string;
 }
+
 
 export interface LoginRequest {
   username: string;

@@ -1,0 +1,274 @@
+<!-- purchase-license.component.html -->
+<div class="license-wrapper">
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+
+        <div class="hero-left reveal" [class.in-view]="inView.hero">
+          <div class="badge-new">
+            <span class="dot"></span>
+            License chính hãng · Kích hoạt nhanh
+          </div>
+
+          <h1>Chọn gói <span>License</span> phù hợp</h1>
+
+          <p class="hero-sub">
+            Mua mới hoặc gia hạn license để mở khóa toàn bộ tính năng quản lý bảo hành & tickets.
+            Thanh toán QR cực nhanh, xác nhận tự động.
+          </p>
+
+          <div class="hero-cta">
+            <button class="btn-main-trial btn-cta-pop" type="button" (click)="scrollToPricing()">
+              <span class="sparkle">✨</span>
+              Xem bảng giá
+              <span class="arrow">→</span>
+            </button>
+
+            <button class="btn-secondary" type="button" (click)="scrollToCompare()">
+              So sánh gói
+            </button>
+          </div>
+
+          <div class="hero-proof">
+            <div class="proof-item">
+              <div class="kpi">{{ plans.length || 0 }}</div>
+              <div class="kpi-sub">Gói license</div>
+            </div>
+            <div class="proof-item">
+              <div class="kpi">QR</div>
+              <div class="kpi-sub">Thanh toán nhanh</div>
+            </div>
+            <div class="proof-item">
+              <div class="kpi">Auto</div>
+              <div class="kpi-sub">Xác nhận tự động</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right reveal" [class.in-view]="inView.hero" style="--d:120ms">
+          <div class="glass-card-preview">
+            <div class="preview-top">
+              <span class="mini-dot red"></span>
+              <span class="mini-dot yellow"></span>
+              <span class="mini-dot green"></span>
+              <div class="mini-title">License Checkout</div>
+            </div>
+
+            <div class="preview-body">
+              <div class="preview-metrics">
+                <div class="metric">
+                  <div class="metric-title">Tính năng</div>
+                  <div class="metric-value good">Full</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-title">Thời hạn</div>
+                  <div class="metric-value">30–365</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-title">Hỗ trợ</div>
+                  <div class="metric-value">24/7</div>
+                </div>
+              </div>
+
+              <div class="preview-footer">
+                <div class="cta-mini"><span class="ic">🔒</span> Bảo mật</div>
+                <div class="cta-mini"><span class="ic">⚡</span> Nhanh</div>
+                <div class="cta-mini"><span class="ic">✅</span> Chuẩn</div>
+              </div>
+            </div>
+
+            <div class="floating-tag t1">🎁 Ưu đãi theo gói</div>
+            <div class="floating-tag t2">📌 Gói phổ biến</div>
+            <div class="floating-tag t3">⚡ Xác nhận nhanh</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section section-soft" #pricingEl>
+    <div class="container">
+      <div class="section-head reveal" [class.in-view]="inView.pricing">
+        <h2>Pricing</h2>
+        <p>Chọn gói phù hợp với nhu cầu – tối ưu chi phí, kích hoạt nhanh.</p>
+      </div>
+
+      <div class="loading" *ngIf="loading">
+        <div class="spinner"></div>
+        <div class="txt">Đang tải gói license...</div>
+      </div>
+
+      <div class="pricing-grid" *ngIf="!loading">
+        <div
+          class="price-card reveal"
+          *ngFor="let p of plans; index as i"
+          [class.popular]="p.isPopular"
+          [style.--d]="(i * 70) + 'ms'"
+          [class.in-view]="inView.pricing"
+        >
+          <div class="pill-pop" *ngIf="p.isPopular">Phổ biến nhất</div>
+
+          <h3>{{ p.name }}</h3>
+          <p class="price-sub">{{ p.description || 'Gói license phù hợp để mở khóa tính năng.' }}</p>
+
+          <div class="price">
+            <div class="num">{{ finalPrice(p) | number }}</div>
+            <div class="unit">VND / {{ p.durationDays }} ngày</div>
+          </div>
+
+          <div class="discount" *ngIf="p.discount && p.discount > 0">
+            <span class="old">{{ p.price | number }}</span>
+            <span class="off">-{{ p.discount }}%</span>
+          </div>
+
+          <ul class="price-list">
+            <li *ngFor="let f of p.features || []">✅ {{ f }}</li>
+          </ul>
+
+          <button class="btn-main-trial w-full" type="button" (click)="selectPlan(p)">
+            Mua ngay
+            <span class="arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section class="section" #compareEl>
+    <div class="container">
+      <div class="section-head reveal" [class.in-view]="inView.compare">
+        <h2>Bảng so sánh</h2>
+        <p>Kiểu Stripe/Notion — nhìn 1 lần là hiểu gói nào hợp.</p>
+      </div>
+
+      <div class="compare-wrap reveal" [class.in-view]="inView.compare">
+        <div class="compare-scroll">
+          <table class="compare-table">
+            <thead>
+            <tr>
+              <th class="feature-col">Tính năng</th>
+              <th *ngFor="let p of plans">{{ p.name }}</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr *ngFor="let row of compareRows">
+              <td class="feature-col">
+                <div class="f-title">{{ row.title }}</div>
+                <div class="f-sub">{{ row.desc }}</div>
+              </td>
+
+              <td *ngFor="let p of plans" [class.best]="p.isPopular">
+                <ng-container [ngSwitch]="row.key">
+                  <span *ngSwitchCase="'store'">{{ hasFeature(p, row.key) }}</span>
+                  <span *ngSwitchCase="'user'">{{ hasFeature(p, row.key) }}</span>
+                  <span *ngSwitchDefault>
+                      <span *ngIf="hasFeature(p, row.key) as ok">{{ ok === true ? '✅' : ok }}</span>
+                      <span *ngIf="!hasFeature(p, row.key)">—</span>
+                    </span>
+                </ng-container>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="highlight-box reveal" [class.in-view]="inView.compare" style="--d:120ms">
+        <div class="h-left">
+          <h3>Thanh toán & kích hoạt</h3>
+          <p>Chọn gói → tạo QR → thanh toán → xác nhận tự động.</p>
+        </div>
+        <div class="h-right">
+          <button class="btn-main-trial" type="button" (click)="scrollToPricing()">
+            Mua license ngay <span class="arrow">→</span>
+          </button>
+          <div class="tiny-note">Bảo mật, nhanh và chuẩn.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENT MODAL -->
+  <div class="modal" *ngIf="paymentOpen" (click)="closePayment()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="ttl">
+          <strong>Thanh toán</strong>
+          <span *ngIf="selected()">· {{ selected()?.name }}</span>
+        </div>
+        <button class="icon-close" type="button" (click)="closePayment()">✕</button>
+      </div>
+
+      <div class="modal-body" *ngIf="selected() as s">
+        <div class="pay-grid">
+
+          <div class="bank-card">
+            <div class="bank-title">Thông tin chuyển khoản</div>
+
+            <div class="kv">
+              <span>Số tiền</span>
+              <strong class="hl">{{ finalPrice(s) | number }} VND</strong>
+            </div>
+
+            <div class="transfer">
+              <label>Nội dung chuyển khoản</label>
+              <input class="input" [value]="transferContent" readonly />
+              <div class="hint">
+                Vui lòng chuyển đúng số tiền + nội dung để hệ thống tự xác nhận.
+              </div>
+            </div>
+
+            <button
+              class="btn-main-trial w-full"
+              type="button"
+              [disabled]="confirming"
+              (click)="confirmTransfer()"
+            >
+              {{ confirming ? 'Đang gửi xác nhận...' : 'Tôi đã chuyển khoản' }}
+            </button>
+          </div>
+
+          <div class="qr-card">
+            <div class="qr-title">Quét QR</div>
+
+            <div class="qr-box" *ngIf="generatingQr">
+              <div class="spinner sm"></div>
+              <p>Đang tạo mã QR...</p>
+            </div>
+
+            <div class="qr-box" *ngIf="!generatingQr && qrBase64">
+              <img [src]="'data:image/png;base64,' + qrBase64" alt="QR Code" />
+              <p>Quét để thanh toán nhanh chóng.</p>
+            </div>
+
+            <div class="qr-box err" *ngIf="!generatingQr && !qrBase64">
+              <div class="warn">⚠️</div>
+              <p>Không tạo được QR. Hãy thử lại.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="msg" *ngIf="message">{{ message }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- floating CTA -->
+  <div class="floating-cta" [class.show]="showFloatingCta">
+    <div class="floating-inner">
+      <div class="floating-text">
+        <strong>Mua/Gia hạn license để mở khóa toàn bộ tính năng.</strong>
+        <span>Thanh toán QR · Xác nhận tự động · Hỗ trợ 24/7</span>
+      </div>
+      <button class="btn-white-trial" type="button" (click)="scrollToPricing()">
+        Xem gói giá
+      </button>
+    </div>
+  </div>
+</div>
