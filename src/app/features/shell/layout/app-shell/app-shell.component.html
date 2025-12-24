@@ -86,19 +86,25 @@
 
         <div class="caret" *ngIf="!collapsed()">▾</div>
 
-        <div class="user-menu" *ngIf="userMenuOpen() && !collapsed()">
-          <button type="button" class="menu-item" (click)="goProfile(); $event.stopPropagation()">
-            <span class="mi">👤</span>
-            <span>Thông tin cá nhân</span>
-          </button>
+          <div class="user-menu" *ngIf="userMenuOpen() && !collapsed()">
+              <button type="button" class="menu-item" (click)="goProfile(); $event.stopPropagation()">
+                  <span class="mi">👤</span>
+                  <span>Thông tin cá nhân</span>
+              </button>
 
-          <div class="sep"></div>
+              <button type="button" class="menu-item" (click)="goChangePassword(); $event.stopPropagation()">
+                  <span class="mi">🔒</span>
+                  <span>Đổi mật khẩu</span>
+              </button>
 
-          <button type="button" class="menu-item danger" (click)="logout(); $event.stopPropagation()">
-            <span class="mi">⎋</span>
-            <span>Đăng xuất</span>
-          </button>
-        </div>
+              <div class="sep"></div>
+
+              <button type="button" class="menu-item danger" (click)="logout(); $event.stopPropagation()">
+                  <span class="mi">⎋</span>
+                  <span>Đăng xuất</span>
+              </button>
+          </div>
+
       </div>
 
       <!-- fallback logout icon khi collapsed -->

@@ -18,6 +18,8 @@ export const SHELL_ROUTES: Routes = [
 
       // ✅ NEW
       { path: 'profile', loadComponent: () => import('../profile/profile.page').then(m => m.ProfilePage) },
+      { path: 'change-password', loadChildren: () => import('../change-password/change-password.routes').then(m => m.CHANGE_PASSWORD_ROUTES) },
+
     ],
   },
 ];

@@ -145,6 +145,11 @@ export class AppShellComponent implements OnInit {
     this.userMenuOpen.set(false);
     this.router.navigateByUrl('/app/profile');
   }
+  goChangePassword() {
+    this.router.navigateByUrl('/app/change-password');
+    this.userMenuOpen.set(false);
+  }
+
 
   logout(): void {
     this.userMenuOpen.set(false);
