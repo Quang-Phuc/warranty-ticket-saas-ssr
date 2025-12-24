@@ -1,49 +1,135 @@
-<div class="profile">
-  <div class="card">
-    <div class="head">
-      <div class="left">
-        <div class="title">Thông tin cá nhân</div>
-        <div class="sub">Chỉnh sửa thông tin hiển thị trên hệ thống</div>
-      </div>
+<div class="profile-wrap">
+    <div class="card">
+        <div class="head">
+            <div>
+                <div class="title">Thông tin cá nhân</div>
+                <div class="desc">Chỉnh sửa thông tin hiển thị trên hệ thống</div>
+            </div>
 
-      <div class="avatar-preview">
-        <img *ngIf="form.value.avatarUrl" [src]="form.value.avatarUrl" alt="avatar" referrerpolicy="no-referrer" />
-        <div class="fallback" *ngIf="!form.value.avatarUrl">{{ initials }}</div>
-      </div>
+            <div class="avatar-zone">
+                <div class="avatar">
+                    <img *ngIf="avatarPreview()" [src]="avatarPreview()!" alt="avatar" />
+                    <div class="fallback" *ngIf="!avatarPreview()">
+                        {{ initials() }}
+                    </div>
+                </div>
+
+                <label class="upload">
+                    Đổi ảnh
+                    <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            (change)="onAvatarFileChange($event)"
+                    />
+                </label>
+            </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()">
+            <div class="grid">
+                <label>
+                    <span>Họ tên *</span>
+                    <input class="field" formControlName="fullName" placeholder="Nguyễn Văn A" />
+                </label>
+
+                <label>
+                    <span>Email</span>
+                    <input class="field" formControlName="email" placeholder="email@domain.com" />
+                </label>
+
+                <label>
+                    <span>Số điện thoại</span>
+                    <input class="field" formControlName="phone" placeholder="09xxxxxxxx" />
+                </label>
+
+                <label>
+                    <span>Ngành nghề</span>
+                    <input class="field" formControlName="industry" placeholder="Gara / Điện thoại / Điện lạnh..." />
+                </label>
+
+                <label class="full">
+                    <span>Mô tả</span>
+                    <textarea class="field area" formControlName="description"></textarea>
+                </label>
+
+                <label class="full">
+                    <span>Website</span>
+                    <input class="field" formControlName="website" placeholder="https://..." />
+                </label>
+            </div>
+
+            <section class="section">
+                <div class="section-head">
+                    <div>
+                        <div class="stitle">Địa chỉ (nhiều chi nhánh)</div>
+                        <div class="sdesc">
+                            Gõ địa chỉ để autocomplete, chọn sẽ zoom map. Click map sẽ tự fill địa chỉ.
+                        </div>
+                    </div>
+                    <button class="add" type="button" (click)="addAddress()">+ Thêm địa chỉ</button>
+                </div>
+
+                <div class="addr-list">
+                    <div
+                            class="addr"
+                            *ngFor="let a of addresses().controls; let i = index"
+                            [formGroup]="a"
+                    >
+                        <div class="addr-grid">
+                            <label>
+                                <span>Tên chi nhánh *</span>
+                                <input class="field" formControlName="name" placeholder="VD: Chi nhánh Quận 5" />
+                            </label>
+
+                            <button class="remove" type="button" (click)="removeAddress(i)">×</button>
+
+                            <label class="full">
+                                <span>Địa chỉ *</span>
+                                <input
+                                        class="field"
+                                        formControlName="address"
+                                        placeholder="VD: 12 Nguyễn Trãi, Q5, TP.HCM"
+                                        (input)="onAddressInput(i)"
+                                />
+
+                                <div class="suggestions" *ngIf="addressSuggestions()[i]?.length">
+                                    <div
+                                            class="s-item"
+                                            *ngFor="let s of addressSuggestions()[i]"
+                                            (click)="selectSuggestion(i, s)"
+                                    >
+                                        {{ s.display_name }}
+                                    </div>
+                                </div>
+                            </label>
+
+                            <div class="coords">
+                                <div><b>Lat:</b> {{ a.value.lat || '--' }}</div>
+                                <div><b>Lng:</b> {{ a.value.lng || '--' }}</div>
+                            </div>
+
+                            <button class="map-btn" type="button" (click)="toggleMap(i)">
+                                📍 {{ openedMapIndex() === i ? 'Đóng bản đồ' : 'Chọn trên bản đồ' }}
+                            </button>
+                        </div>
+
+                        <div class="map-wrap" *ngIf="openedMapIndex() === i">
+                            <div class="map" [id]="'map-' + i"></div>
+                            <div class="hint">👉 Click map để chọn vị trí.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="actions">
+                <button type="button" class="ghost" (click)="reset()">Hoàn tác</button>
+                <button type="submit" [disabled]="saving()">
+                    {{ saving() ? 'Đang lưu...' : 'Lưu thay đổi' }}
+                </button>
+            </div>
+
+            <div class="msg" *ngIf="message()">{{ message() }}</div>
+        </form>
     </div>
-
-    <form [formGroup]="form" (ngSubmit)="save()">
-      <div class="grid">
-        <label>
-          <span>Họ tên</span>
-          <input formControlName="fullName" placeholder="Nguyễn Văn A" />
-        </label>
-
-        <label>
-          <span>Email</span>
-          <input formControlName="email" placeholder="email@domain.com" />
-        </label>
-
-        <label>
-          <span>Số điện thoại</span>
-          <input formControlName="phone" placeholder="09xxxxxxxx" />
-        </label>
-
-        <label class="full">
-          <span>Avatar URL</span>
-          <input formControlName="avatarUrl" placeholder="https://..." />
-          <small>Dán link ảnh (jpg/png/webp). Nếu trống sẽ hiển thị chữ cái.</small>
-        </label>
-      </div>
-
-      <div class="actions">
-        <button type="button" class="ghost" (click)="reset()">Hoàn tác</button>
-        <button type="submit" [disabled]="saving()">
-          {{ saving() ? 'Đang lưu...' : 'Lưu thay đổi' }}
-        </button>
-      </div>
-
-      <div class="msg" *ngIf="message()">{{ message() }}</div>
-    </form>
-  </div>
 </div>
