@@ -1,4 +1,3 @@
-// src/app/core/services/license.service.ts
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../core/http/api-client';
@@ -33,6 +32,32 @@ export interface ConfirmResponse {
   message?: string;
 }
 
+/** ✅ EXPORT */
+export interface LicenseHistoryEntry {
+  id: number;
+  packageName: string;
+  purchaseDate: string;
+  amountPaid: number;
+  userId: number;
+  status: string;
+  note?: string;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+/** ✅ request body search */
+export interface LicenseHistorySearchReq {
+  page: number;
+  size: number;
+  keyword?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LicenseService {
   constructor(private api: ApiClient) {}
@@ -53,5 +78,15 @@ export class LicenseService {
   // ✅ POST /api/license-packages/confirm
   confirmPayment(body: ConfirmRequest): Observable<ConfirmResponse> {
     return this.api.postData<ConfirmResponse>('license-packages/confirm', body);
+  }
+
+  /** ✅ POST search (backend search) */
+  searchLicenseHistory(body: LicenseHistorySearchReq): Observable<PagedResponse<LicenseHistoryEntry>> {
+    return this.api.postData<PagedResponse<LicenseHistoryEntry>>('license-history/search', body);
+  }
+
+  /** ✅ update history */
+  updateLicenseHistory(id: number, body: { status: string; note: string }): Observable<any> {
+    return this.api.putData<any>(`license-history/${id}`, body);
   }
 }

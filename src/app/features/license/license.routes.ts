@@ -6,10 +6,9 @@ export const LICENSE_ROUTES: Routes = [
     loadComponent: () =>
       import('../license/page/purchase-license/purchase-license.component').then(m => m.PurchaseLicenseComponent),
   },
-  // nếu có lịch sử mua
-  // {
-  //   path: 'history',
-  //   loadComponent: () =>
-  //     import('./pages/license-history/license-history.page').then(m => m.LicenseHistoryPage),
-  // },
+  {
+    path: 'history',
+    loadComponent: () =>
+      import('../license/page/history-user/license-history-user.component').then(m => m.LicenseHistoryComponent),
+  },
 ];

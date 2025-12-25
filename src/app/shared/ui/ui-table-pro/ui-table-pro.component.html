@@ -1,0 +1,218 @@
+<div class="table-shell">
+    <!-- Header -->
+    <div class="table-head">
+        <div class="h-left">
+            <div class="title-row">
+                <h2 class="t-title">{{ title() }}</h2>
+
+                <span class="pill" *ngIf="total()">
+          {{ total() | number }} items
+        </span>
+
+                <span class="pill ok" *ngIf="selectedRows().length && enableSelect()">
+          ✅ Đã chọn {{ selectedRows().length }}
+                    <button class="mini-x" type="button" (click)="clearSelection()">✕</button>
+        </span>
+            </div>
+
+            <p class="t-sub" *ngIf="subtitle()">{{ subtitle() }}</p>
+        </div>
+
+        <div class="h-right">
+            <!-- Search -->
+            <div class="search" *ngIf="enableSearch()">
+                <span class="si">🔎</span>
+                <input
+                        class="search-input"
+                        [ngModel]="searchTerm()"
+                        (ngModelChange)="onSearchInput($event)"
+                        [placeholder]="searchPlaceholder()"
+                />
+                <button class="clear" type="button" *ngIf="searchTerm()" (click)="clearSearch()">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Column picker -->
+            <div class="col-picker" *ngIf="enableColumnPicker()">
+                <button class="icon-btn" type="button" (click)="toggleColPicker(); $event.stopPropagation()">
+                    🧩 Cột
+                    <span class="dot" *ngIf="hasAnyHidden()"></span>
+                </button>
+
+                <div class="picker-pop" *ngIf="openColPicker()" (click)="$event.stopPropagation()">
+                    <div class="picker-title">
+                        <strong>Ẩn/Hiện cột</strong>
+                        <button class="link" type="button" (click)="resetColumns()">Reset</button>
+                    </div>
+
+                    <div class="picker-list">
+                        <label class="pick" *ngFor="let c of (localCols().length ? localCols() : columns())">
+                            <input type="checkbox" [checked]="!c.hidden" (change)="toggleColumn(c)" />
+                            <span>{{ c.label }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export -->
+            <button class="icon-btn" type="button" *ngIf="enableExport()" (click)="exportCsv?.()">
+                ⤓ CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card">
+        <!-- Loading overlay -->
+        <div class="overlay" *ngIf="loading()">
+            <div class="spinner"></div>
+            <div class="ov-txt">Đang tải dữ liệu...</div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="th-check" *ngIf="enableSelect()">
+                        <input
+                                type="checkbox"
+                                [checked]="allChecked()"
+                                [indeterminate]="someChecked()"
+                                (change)="toggleAll()"
+                        />
+                    </th>
+
+                    <th
+                            *ngFor="let c of visibleColumns(); trackBy: trackByCol"
+                            [style.width]="c.width || null"
+                            [class.sortable]="c.sortable"
+                            [class.center]="c.align === 'center'"
+                            [class.right]="c.align === 'right'"
+                            (click)="onSort(c)"
+                    >
+                        <div class="th-inner">
+                            <span>{{ c.label }}</span>
+
+                            <span class="sort" *ngIf="c.sortable">
+                  <span class="up" [class.on]="isSortedAsc(keyToString(c.key))">▲</span>
+                  <span class="down" [class.on]="isSortedDesc(keyToString(c.key))">▼</span>
+                </span>
+                        </div>
+                    </th>
+
+                    <th class="th-actions" *ngIf="actions()?.length"></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <!-- Empty -->
+                <tr *ngIf="!loading() && rows().length === 0">
+                    <td
+                            class="empty"
+                            [attr.colspan]="visibleColumns().length + (enableSelect() ? 1 : 0) + (actions()?.length ? 1 : 0)"
+                    >
+                        <div class="empty-box">
+                            <div class="e-ic">📭</div>
+                            <div class="e-title">Không có dữ liệu</div>
+                            <div class="e-sub">Hãy thử thay đổi bộ lọc hoặc tìm kiếm khác.</div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Data -->
+                <tr *ngFor="let row of rows(); let i = index; trackBy: trackByRow" class="row">
+                    <td class="td-check" *ngIf="enableSelect()">
+                        <input type="checkbox" [checked]="selectedKeys().has(i)" (change)="toggleRow(i)" />
+                    </td>
+
+                    <td
+                            *ngFor="let c of visibleColumns(); trackBy: trackByCol"
+                            [class.center]="c.align === 'center'"
+                            [class.right]="c.align === 'right'"
+                    >
+                        <ng-container [ngSwitch]="c.type || 'text'">
+                            <!-- money -->
+                            <ng-container *ngSwitchCase="'money'">
+                                <span class="money">{{ formatMoney(getCellValue(row, c)) }}</span>
+                            </ng-container>
+
+                            <!-- date -->
+                            <ng-container *ngSwitchCase="'date'">
+                                <span class="date">{{ formatDate(getCellValue(row, c)) }}</span>
+                            </ng-container>
+
+                            <!-- badge -->
+                            <ng-container *ngSwitchCase="'badge'">
+                  <span class="badge" [attr.data-tone]="c.badgeTone ? c.badgeTone(row) : 'gray'">
+                    {{ getCellValue(row, c) }}
+                  </span>
+                            </ng-container>
+
+                            <!-- default -->
+                            <ng-container *ngSwitchDefault>
+                                <span class="txt" [title]="getCellValue(row, c)">{{ getCellValue(row, c) }}</span>
+                            </ng-container>
+                        </ng-container>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="td-actions" *ngIf="actions()?.length">
+                        <div class="row-actions">
+                            <button class="dots" type="button" (click)="toggleRowActions(i, $event)">⋯</button>
+
+                            <div class="actions-pop" *ngIf="openRowActionIndex() === i" (click)="$event.stopPropagation()">
+                                <button
+                                        class="act"
+                                        *ngFor="let a of actions()"
+                                        [class.danger]="a.tone === 'danger'"
+                                        type="button"
+                                        (click)="runAction(a, row, $event)"
+                                >
+                                    <span class="ic">{{ a.icon || '•' }}</span>
+                                    <span>{{ a.label }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="foot" *ngIf="total() > 0">
+            <div class="foot-left">
+        <span class="muted">
+          Hiển thị <strong>{{ from() }}</strong> - <strong>{{ to() }}</strong> / {{ total() | number }}
+        </span>
+            </div>
+
+            <div class="foot-right">
+                <div class="size">
+                    <span class="muted">Hiển thị</span>
+                    <select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+                        <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+                    </select>
+                    <span class="muted">/ trang</span>
+                </div>
+
+                <div class="pager">
+                    <button class="pbtn" type="button" (click)="goPrev()" [disabled]="page() === 0">←</button>
+
+                    <button
+                            class="pbtn"
+                            type="button"
+                            *ngFor="let p of pagesToShow()"
+                            [class.active]="p === page()"
+                            (click)="goPage(p)"
+                    >
+                        {{ p + 1 }}
+                    </button>
+
+                    <button class="pbtn" type="button" (click)="goNext()" [disabled]="page() >= totalPages() - 1">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
