@@ -221,7 +221,7 @@
 /* Card */
 .card {
   position: relative;
-  overflow: hidden;
+  overflow: visible !important;
   margin-top: 12px;
   border-radius: 16px;
   border: 1px solid var(--line);
@@ -231,7 +231,9 @@
   z-index: 1;
 }
 
-.table-wrap { overflow: auto; }
+.table-wrap {
+  overflow: visible !important;
+}
 
 .table {
   width: 100%;
@@ -533,7 +535,7 @@ select.store-select option {
 }
 
 .row-actions {
-  position: relative; /* Backup thêm layer */
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -571,7 +573,8 @@ select.store-select option {
 .actions-pop {
   position: absolute;
   right: 0;
-  top: calc(100% + 12px);
+  top: 100%; /* mặc định xổ xuống */
+  margin-top: 6px;
   min-width: 220px;
   border-radius: 20px;
   border: 1px solid rgba(139, 92, 246, 0.5);
@@ -582,7 +585,7 @@ select.store-select option {
     0 0 50px rgba(139, 92, 246, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   overflow: hidden;
-  z-index: 99999 !important; /* Cực cao để đè lên hết */
+  z-index: 9999; /* ✅ nổi lên trên chân bảng */
   animation: popInStrong 0.3s ease-out;
 }
 
