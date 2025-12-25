@@ -26,7 +26,7 @@
   gap: 12px;
 }
 
-/* Separate toolbar (search + filters) into its own block */
+/* Toolbar Card */
 .toolbar-card{
   display:flex;
   align-items:center;
@@ -43,10 +43,10 @@
   z-index: 10;
 }
 
-/* Make header and toolbar look like two blocks */
 .table-head{
   gap: 14px;
 }
+
 .h-right{
   align-items:flex-start;
 }
@@ -194,27 +194,18 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    strong {
-      font-weight: 1000;
-    }
-
+    strong { font-weight: 1000; }
     .link {
       background: transparent;
       border: 0;
       color: rgba(255, 255, 255, 0.78);
       cursor: pointer;
       font-weight: 900;
-      &:hover {
-        color: white;
-        text-decoration: underline;
-      }
+      &:hover { color: white; text-decoration: underline; }
     }
   }
 
-  .picker-list {
-    display: grid;
-    gap: 8px;
-  }
+  .picker-list { display: grid; gap: 8px; }
 
   .pick {
     display: flex;
@@ -223,12 +214,7 @@
     font-weight: 850;
     font-size: 13px;
     color: rgba(255, 255, 255, 0.86);
-
-    input {
-      accent-color: var(--primary);
-      width: 16px;
-      height: 16px;
-    }
+    input { accent-color: var(--primary); width: 16px; height: 16px; }
   }
 }
 
@@ -245,9 +231,7 @@
   z-index: 1;
 }
 
-.table-wrap {
-  overflow: auto;
-}
+.table-wrap { overflow: auto; }
 
 .table {
   width: 100%;
@@ -270,9 +254,7 @@
 
     &.sortable {
       cursor: pointer;
-      &:hover {
-        color: white;
-      }
+      &:hover { color: white; }
     }
     &.center { text-align: center; }
     &.right { text-align: right; }
@@ -283,31 +265,36 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     font-weight: 750;
     color: rgba(255, 255, 255, 0.86);
-
     &.center { text-align: center; }
     &.right { text-align: right; }
   }
 
+  /* Dòng bảng - transition mượt */
   tbody tr.row {
-    transition: background 180ms ease, transform 180ms ease;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Zebra striping */
-  tbody tr:nth-child(odd){
-    background: rgba(255,255,255,0.02);
-  }
-  tbody tr:nth-child(even){
-    background: rgba(255,255,255,0.05);
-  }
+  /* Zebra striping nhẹ */
+  tbody tr:nth-child(odd) { background: rgba(255,255,255,0.02); }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.05); }
 
-  /* Hover sửa lại cho dễ đọc */
+  /* ✅ HIỆU ỨNG HOVER SIÊU ĐẸP VỚI ĐỔ BÓNG */
   tbody tr:hover {
-    background: rgba(139, 92, 246, 0.28) !important;
-    transform: translateY(-1px);
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.22), rgba(99, 102, 241, 0.18)) !important;
+    transform: translateY(-4px);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(139, 92, 246, 0.25),
+      0 10px 20px rgba(139, 92, 246, 0.15);
+    z-index: 5;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   tbody tr:hover td {
     color: white !important;
+    text-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
   }
 
   tbody tr:hover .badge,
@@ -318,9 +305,7 @@
     opacity: 1;
   }
 
-  tbody tr:last-child td{
-    border-bottom: 0;
-  }
+  tbody tr:last-child td { border-bottom: 0; }
 }
 
 .sort {
@@ -329,8 +314,7 @@
   gap: 2px;
   vertical-align: middle;
 
-  .up,
-  .down {
+  .up, .down {
     font-size: 9px;
     opacity: 0.35;
     &.on {
@@ -349,6 +333,7 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.88);
+  transition: all 0.3s ease;
 
   &[data-tone='green'] { background: rgba(34, 197, 94, 0.14); border-color: rgba(34, 197, 94, 0.22); }
   &[data-tone='blue'] { background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.22); }
@@ -427,7 +412,7 @@
   }
 }
 
-/* overlay loading */
+/* Loading overlay */
 .overlay {
   position: absolute;
   inset: 0;
@@ -450,14 +435,9 @@
 }
 @keyframes sp { to { transform: rotate(360deg); } }
 
-.ov-txt {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 900;
-}
+.ov-txt { color: rgba(255, 255, 255, 0.9); font-weight: 900; }
 
-.empty {
-  padding: 28px !important;
-}
+.empty { padding: 28px !important; }
 .empty-box {
   text-align: center;
   display: grid;
@@ -467,15 +447,13 @@
   .e-sub { color: var(--muted); font-weight: 750; }
 }
 
-/* responsive */
+/* Responsive */
 @media (max-width: 980px) {
   .table { min-width: 720px; }
   .search .search-input { width: 160px; }
 }
 
-/* =======================
-   ✅ STORE FILTER – ĐÃ SỬA ĐỂ DỄ NHÌN
-   ======================= */
+/* Store Filter */
 .store-filter {
   display: flex;
   align-items: center;
@@ -504,7 +482,6 @@
   -moz-appearance: none;
 }
 
-/* Custom dropdown arrow */
 select.store-select {
   background-image:
     linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.85) 50%),
@@ -529,130 +506,142 @@ select.store-select option {
   color: rgba(255, 255, 255, 0.92);
 }
 
-/* =======================
-   ✅ Header Actions
-   ======================= */
-.header-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-right:8px;
-  flex-wrap:wrap;
-}
-
-.ha-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 12px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,.08);
-  background:#fff;
-  cursor:pointer;
-  font-weight:600;
-  font-size:13px;
-  transition: all .15s ease;
-  box-shadow: 0 1px 0 rgba(0,0,0,.04);
-}
+/* Header Actions & Confirm Modal & Actions popup giữ nguyên */
+.header-actions{ display:flex; align-items:center; gap:8px; margin-right:8px; flex-wrap:wrap; }
+.ha-btn{ display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.08); background:#fff; cursor:pointer; font-weight:600; font-size:13px; transition: all .15s ease; box-shadow: 0 1px 0 rgba(0,0,0,.04); }
 .ha-btn:hover{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.08); }
 .ha-btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 .ha-btn.primary{ background:#111827; color:#fff; border-color:#111827; }
 .ha-btn.danger{ background:#fee2e2; color:#991b1b; border-color:#fecaca; }
 .ha-btn .ic{ font-size:14px; }
 
-/* =======================
-   ✅ Confirm Modal
-   ======================= */
-.confirm-backdrop{
-  position:fixed;
-  inset:0;
-  background: rgba(15,23,42,.45);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index: 9999;
-  padding: 20px;
-}
-
-.confirm-card{
-  width: min(420px, 100%);
-  background:#fff;
-  border-radius: 16px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.22);
-  padding: 16px;
-  border: 1px solid rgba(0,0,0,.06);
-}
-
-.confirm-title{
-  font-size: 16px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  color:#0f172a;
-}
-
-.confirm-message{
-  font-size: 13.5px;
-  color:#334155;
-  line-height: 1.45;
-  margin-bottom: 14px;
-}
-
-.confirm-actions{
-  display:flex;
-  justify-content:flex-end;
-  gap: 10px;
-}
-
-.confirm-actions .btn{
-  padding: 9px 14px;
-  border-radius: 12px;
-  border:1px solid rgba(0,0,0,.08);
-  background:#fff;
-  cursor:pointer;
-  font-weight:700;
-}
-
-.confirm-actions .btn.ghost{
-  background:#f1f5f9;
-  border-color:#e2e8f0;
-  color:#0f172a;
-}
-
-.confirm-actions .btn.danger{
-  background:#ef4444;
-  border-color:#ef4444;
-  color:#fff;
-}
+.confirm-backdrop{ position:fixed; inset:0; background: rgba(15,23,42,.45); display:flex; align-items:center; justify-content:center; z-index: 9999; padding: 20px; }
+.confirm-card{ width: min(420px, 100%); background:#fff; border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.22); padding: 16px; border: 1px solid rgba(0,0,0,.06); }
+.confirm-title{ font-size: 16px; font-weight: 800; margin-bottom: 8px; color:#0f172a; }
+.confirm-message{ font-size: 13.5px; color:#334155; line-height: 1.45; margin-bottom: 14px; }
+.confirm-actions{ display:flex; justify-content:flex-end; gap: 10px; }
+.confirm-actions .btn{ padding: 9px 14px; border-radius: 12px; border:1px solid rgba(0,0,0,.08); background:#fff; cursor:pointer; font-weight:700; }
+.confirm-actions .btn.ghost{ background:#f1f5f9; border-color:#e2e8f0; color:#0f172a; }
+.confirm-actions .btn.danger{ background:#ef4444; border-color:#ef4444; color:#fff; }
 .confirm-actions .btn:hover{ filter: brightness(.98); }
 
-/* Actions popup */
-.dots{
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,.08);
-  background: #fff;
-  box-shadow: 0 1px 0 rgba(0,0,0,.04);
+/* ✅ ACTIONS DOTS & POPUP – FIX HOÀN TOÀN, ĐẸP VÀ RÕ RÀNG TRÊN DARK THEME */
+/* ✅ ACTIONS DOTS & POPUP – FIX HOÀN HẢO, LUÔN HIỆN RÕ TRÊN DARK THEME */
+.td-actions {
+  position: relative; /* Quan trọng: làm cha để popup absolute đúng chỗ */
+  z-index: 10;
 }
-.dots:hover{
-  box-shadow: 0 10px 24px rgba(0,0,0,.10);
-  transform: translateY(-1px);
+
+.row-actions {
+  position: relative; /* Backup thêm layer */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
-.actions-pop{
-  border-radius: 14px;
-  border:1px solid rgba(0,0,0,.08);
-  box-shadow: 0 16px 40px rgba(2,6,23,.14);
-  overflow: hidden;
+
+.dots {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.35s ease;
+}
+
+.dots:hover {
+  background: rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.6);
+  transform: translateY(-5px) scale(1.08);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(139, 92, 246, 0.4);
+  color: white;
+}
+
+/* Popup – nền siêu đậm, viền glow, chữ rõ ràng */
+.actions-pop {
   position: absolute;
   right: 0;
-  z-index: 1000;
+  top: calc(100% + 12px);
+  min-width: 220px;
+  border-radius: 20px;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  background: rgba(12, 18, 35, 0.98) !important; /* Ép đậm, không trong suốt */
+  backdrop-filter: blur(28px);
+  box-shadow:
+    0 35px 90px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(139, 92, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  z-index: 99999 !important; /* Cực cao để đè lên hết */
+  animation: popInStrong 0.3s ease-out;
 }
-.actions-pop .act{
-  padding: 10px 12px;
+
+@keyframes popInStrong {
+  0% {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.actions-pop .act {
+  padding: 16px 20px;
   width: 100%;
   text-align: left;
+  background: transparent;
+  border: 0;
+  color: white !important; /* Ép trắng sáng */
+  font-weight: 850;
+  font-size: 14.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.actions-pop .act:disabled{
-  opacity: .55;
+
+.actions-pop .act:last-child {
+  border-bottom: none;
+}
+
+.actions-pop .act:hover {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.4), rgba(139, 92, 246, 0.3)) !important;
+  padding-left: 28px;
+  font-weight: 950;
+  box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+.actions-pop .act.danger {
+  color: #fb7185 !important;
+}
+
+.actions-pop .act.danger:hover {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.45), rgba(239, 68, 68, 0.35)) !important;
+  color: white !important;
+}
+
+.actions-pop .act:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
+  padding-left: 20px;
+}
+
+.actions-pop .act .ic {
+  font-size: 16px;
+  min-width: 24px;
+  text-align: center;
 }
