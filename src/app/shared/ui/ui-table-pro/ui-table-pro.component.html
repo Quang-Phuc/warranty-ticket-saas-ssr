@@ -23,12 +23,22 @@
           <!-- ✅ Store select -->
           <div class="store-filter" *ngIf="enableStoreFilter() && stores().length">
             <span class="si">🏪</span>
-            <select class="store-select"
-                    [ngModel]="selectedStoreId()"
-                    (ngModelChange)="onStoreChange($event)">
-              <option *ngFor="let s of stores()" [ngValue]="s.id">{{ s.name }}</option>
-            </select>
+
+            <div class="select-wrap">
+              <select
+                class="store-select"
+                [ngModel]="selectedStoreId()"
+                (ngModelChange)="onStoreChange($event)"
+              >
+                <option *ngFor="let s of stores()" [ngValue]="s.id">
+                  {{ s.name }}
+                </option>
+              </select>
+
+              <span class="caret">▾</span>
+            </div>
           </div>
+
 
           <div class="search" *ngIf="enableSearch()">
                 <span class="si">🔎</span>
