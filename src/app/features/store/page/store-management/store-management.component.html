@@ -1,0 +1,31 @@
+<ui-table-pro
+  [headerActions]="headerActions"
+  [enableSelect]="true"
+  (selectionChange)="selectedRows = $event"
+
+  title="Quản lý cửa hàng"
+  subtitle="Danh sách và chỉnh sửa thông tin các cửa hàng"
+  [rows]="rows()"
+  [columns]="columns"
+  [total]="total()"
+  [loading]="loading()"
+  [page]="page()"
+  [pageSize]="pageSize()"
+  [enableSearch]="true"
+  [enableColumnPicker]="true"
+  [actions]="actions"
+  (searchChange)="onSearch($event)"
+  (pageChange)="onPageChange($event)"
+  (pageSizeChange)="onSizeChange($event)"
+>
+</ui-table-pro>
+
+<ui-detail-drawer
+  [open]="drawerOpen()"
+  [title]="currentRow()?.id === null ? 'Thêm cửa hàng mới' : 'Chi tiết / Sửa cửa hàng'"
+  [row]="currentRow()"
+  [fields]="drawerFields"
+  [statusOptions]="statusOptions"
+  (close)="closeDrawer()"
+  (save)="saveDrawer($event)"
+></ui-detail-drawer>
