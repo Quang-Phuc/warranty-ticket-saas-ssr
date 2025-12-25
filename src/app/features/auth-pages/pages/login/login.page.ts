@@ -81,7 +81,10 @@ export class LoginPage {
 
         // ✅ FIX BUG: lưu navGroups + ui.theme để AppShell đọc được
         localStorage.setItem('navGroups', JSON.stringify((res as any).navGroups ?? []));
-        localStorage.setItem('uiTheme', (res as any).ui?.theme ?? 'dark');
+        // Chỉ lưu nếu backend trả về giá trị hợp lệ, không thì giữ nguyên (dark)
+        const backendTheme = (res as any).ui?.theme;
+          localStorage.setItem('uiTheme', 'dark');
+// Nếu không có hoặc sai → giữ nguyên dark (do index.html đã set)
 
          // ✅ NEW: lưu list stores vào localStorage
         const stores = (res as any).stores ?? [];

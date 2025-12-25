@@ -19,6 +19,7 @@
         </div>
 
         <div class="h-right">
+            <div class="toolbar-card">
             <!-- ✅ Header actions (Thêm mới / Xóa chọn / Refresh...) -->
             <div class="header-actions" *ngIf="headerActions()?.length">
               <button
@@ -95,6 +96,7 @@
             <button class="icon-btn" type="button" *ngIf="enableExport()" (click)="exportCsv()">
                 ⤓ CSV
             </button>
+            </div>
         </div>
     </div>
 
