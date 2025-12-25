@@ -9,6 +9,6 @@ export const LICENSE_ROUTES: Routes = [
   {
     path: 'history',
     loadComponent: () =>
-      import('../license/page/history-user/license-history-user.component').then(m => m.LicenseHistoryComponent),
+      import('../license/page/history-user/license-history-user.component').then(m => m.LicenseHistoryUserComponent),
   },
 ];

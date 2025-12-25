@@ -273,4 +273,11 @@ export class UiTableProComponent<T = any> {
 
     trackByRow = (_: number, row: any) => row?.id ?? _;
     trackByCol = (_: number, col: UiTableColumn<T>) => this.keyToString(col.key);
+
+    exportCsv() {
+        // TODO: implement export later (optional)
+        // hiện tại chỉ để tránh build error
+        console.log('[UiTablePro] Export CSV clicked');
+    }
+
 }

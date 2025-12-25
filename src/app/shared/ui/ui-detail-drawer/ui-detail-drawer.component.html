@@ -5,7 +5,7 @@
         <div class="head">
             <div class="title">
                 <div class="h1">{{ title() }}</div>
-                <div class="sub" *ngIf="row()">ID: {{ (row() as any)?.id }}</div>
+                <div class="sub" *ngIf="row()">ID: {{ rowId() }}</div>
             </div>
 
             <button class="x" type="button" (click)="onClose()">✕</button>

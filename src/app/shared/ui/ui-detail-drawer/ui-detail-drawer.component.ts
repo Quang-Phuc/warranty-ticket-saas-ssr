@@ -100,4 +100,13 @@ export class UiDetailDrawerComponent<T = any> {
         this.saving.set(false);
         this.editMode.set(false);
     }
+    rowId(): any {
+        const r: any = this.row();
+        return r?.id ?? '—';
+    }
+
+    rowAny(): any {
+        return this.row() as any;
+    }
+
 }

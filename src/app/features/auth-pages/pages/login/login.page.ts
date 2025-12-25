@@ -79,6 +79,11 @@ export class LoginPage {
         // ✅ luôn lưu token trước để mua license được
         this.auth.loginSuccess(res.token, res.refreshToken, mappedUser);
 
+        // ✅ FIX BUG: lưu navGroups + ui.theme để AppShell đọc được
+        localStorage.setItem('navGroups', JSON.stringify((res as any).navGroups ?? []));
+        localStorage.setItem('uiTheme', (res as any).ui?.theme ?? 'dark');
+
+
         // ✅ không có expiryDate thì login bình thường
         if (!expiryDate) {
           this.router.navigateByUrl('/app');
