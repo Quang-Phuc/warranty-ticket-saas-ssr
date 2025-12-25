@@ -14,7 +14,7 @@ export const SHELL_ROUTES: Routes = [
       { path: 'customers', loadChildren: () => import('../customers/customers.routes').then(m => m.CUSTOMERS_ROUTES) },
       { path: 'assets', loadChildren: () => import('../assets/assets.routes').then(m => m.ASSETS_ROUTES) },
       { path: 'warranties', loadChildren: () => import('../warranties/warranties.routes').then(m => m.WARRANTIES_ROUTES) },
-      { path: 'license', loadChildren: () => import('../license/license.routes').then(m => m.LICENSE_ROUTES) },
+      { path: 'license/history',loadComponent: () => import('../license/page/history-user/license-history-user.component').then(m => m.LicenseHistoryUserComponent)},
 
       { path: 'settings', loadChildren: () => import('../settings/settings.routes').then(m => m.SETTINGS_ROUTES) },
 

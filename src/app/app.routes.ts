@@ -19,8 +19,16 @@ export const routes: Routes = [
 
   {
     path: 'license',
-    loadChildren: () => import('./features/license/license.routes').then(m => m.LICENSE_ROUTES),
+    children: [
+      {
+        path: 'purchase',
+        loadComponent: () =>
+            import('./features/license/page/purchase-license/purchase-license.component')
+                .then(m => m.PurchaseLicenseComponent),
+      },
+    ],
   },
+
 
   // Portal
   {
