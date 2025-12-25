@@ -418,3 +418,22 @@
   .table { min-width: 720px; }
   .search .search-input { width: 160px; }
 }
+.store-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.store-select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 140px;
+}

@@ -20,7 +20,17 @@
 
         <div class="h-right">
             <!-- Search -->
-            <div class="search" *ngIf="enableSearch()">
+          <!-- ✅ Store select -->
+          <div class="store-filter" *ngIf="enableStoreFilter() && stores().length">
+            <span class="si">🏪</span>
+            <select class="store-select"
+                    [ngModel]="selectedStoreId()"
+                    (ngModelChange)="onStoreChange($event)">
+              <option *ngFor="let s of stores()" [ngValue]="s.id">{{ s.name }}</option>
+            </select>
+          </div>
+
+          <div class="search" *ngIf="enableSearch()">
                 <span class="si">🔎</span>
                 <input
                         class="search-input"

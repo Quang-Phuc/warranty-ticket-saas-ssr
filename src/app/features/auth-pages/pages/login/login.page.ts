@@ -83,6 +83,16 @@ export class LoginPage {
         localStorage.setItem('navGroups', JSON.stringify((res as any).navGroups ?? []));
         localStorage.setItem('uiTheme', (res as any).ui?.theme ?? 'dark');
 
+         // ✅ NEW: lưu list stores vào localStorage
+        const stores = (res as any).stores ?? [];
+        localStorage.setItem('stores', JSON.stringify(stores));
+
+        // ✅ NEW: lưu selectedStoreId mặc định (nếu chưa có)
+        const savedStoreId = localStorage.getItem('selectedStoreId');
+        if (!savedStoreId && stores.length > 0) {
+          localStorage.setItem('selectedStoreId', String(stores[0].id));
+        }
+
 
         // ✅ không có expiryDate thì login bình thường
         if (!expiryDate) {

@@ -12,6 +12,13 @@ export type NavItem = {
   children?: NavItem[];
 };
 
+export interface StoreDto {
+  id: number;
+  name: string;
+  address?: string;
+  note?: string;
+}
+
 export type NavGroup = {
   id: string;
   label: string;
@@ -38,6 +45,8 @@ export interface LoginData {
 
   // ✅ NEW: Ngày hết hạn license (ISO string)
   expiryDate?: string;
+
+  stores: StoreDto[];
 }
 
 
