@@ -151,4 +151,29 @@ export class ApiClient {
         })
       );
   }
+  deleteData<T>(endpoint: string, params?: any, options?: ApiClientOptions): Observable<T> {
+    const httpParams = this.buildParams(params);
+    const headers = this.buildHeaders(options);
+
+    return this.http
+      .delete<ApiEnvelope<T>>(`${this.baseUrl}/${endpoint}`, { params: httpParams, headers })
+      .pipe((source) =>
+        new Observable<T>((sub) => {
+          const s = source.subscribe({
+            next: (env) => {
+              this.unwrapData<T>(env).subscribe({
+                next: (data) => {
+                  sub.next(data);
+                  sub.complete();
+                },
+                error: (e) => sub.error(e),
+              });
+            },
+            error: (e) => sub.error(e),
+          });
+          return () => s.unsubscribe();
+        })
+      );
+  }
+
 }

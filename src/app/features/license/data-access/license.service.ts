@@ -89,4 +89,11 @@ export class LicenseService {
   updateLicenseHistory(id: number, body: { status: string; note: string }): Observable<any> {
     return this.api.putData<any>(`license-history/${id}`, body);
   }
+
+
+  /** ✅ delete history */
+  deleteLicenseHistory(id: number): Observable<any> {
+    return this.api.deleteData<any>(`license-history/${id}`);
+  }
+
 }

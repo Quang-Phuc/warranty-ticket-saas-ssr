@@ -1,148 +1,222 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { UiTableProComponent, UiTableColumn, UiTableAction } from '../../../../shared/ui/ui-table-pro/ui-table-pro.component';
-import { UiDetailDrawerComponent, DrawerField, DrawerOption } from '../../../../shared/ui/ui-detail-drawer/ui-detail-drawer.component';
-import { LicenseService, LicenseHistoryEntry, PagedResponse } from '../../data-access/license.service';
+import {
+  UiTableAction, UiTableColumn, UiTableHeaderAction, UiTableProComponent
+} from '../../../../shared/ui/ui-table-pro/ui-table-pro.component';
+import {
+  DrawerField, DrawerOption, UiDetailDrawerComponent
+} from '../../../../shared/ui/ui-detail-drawer/ui-detail-drawer.component';
+import {LicenseHistoryEntry, LicenseService, PagedResponse} from '../../data-access/license.service';
 
 @Component({
-    selector: 'license-history-user',
-    standalone: true,
-    imports: [CommonModule, UiTableProComponent, UiDetailDrawerComponent],
-    templateUrl: './license-history-user.component.html',
-    styleUrl: './license-history-user.component.scss',
+  selector: 'license-history-user',
+  standalone: true,
+  imports: [CommonModule, UiTableProComponent, UiDetailDrawerComponent],
+  templateUrl: './license-history-user.component.html',
+  styleUrl: './license-history-user.component.scss',
 })
 export class LicenseHistoryUserComponent {
-    loading = signal(false);
+  loading = signal(false);
+  selectedRows: LicenseHistoryEntry[] = [];
 
-    rows = signal<LicenseHistoryEntry[]>([]);
-    total = signal(0);
+  rows = signal<LicenseHistoryEntry[]>([]);
+  total = signal(0);
 
-    page = signal(0);
-    pageSize = signal(10);
+  page = signal(0);
+  pageSize = signal(10);
 
-    keyword = signal('');
+  keyword = signal('');
 
-    currentRow = signal<LicenseHistoryEntry | null>(null);
-    drawerOpen = signal(false);
+  currentRow = signal<LicenseHistoryEntry | null>(null);
+  drawerOpen = signal(false);
 
-    /** ✅ Columns */
-    columns: UiTableColumn<LicenseHistoryEntry>[] = [
-        { key: 'id', label: 'ID', width: '90px', sortable: true },
-        { key: 'packageName', label: 'Gói', sortable: true },
-        { key: 'amountPaid', label: 'Số tiền', type: 'money', align: 'right', sortable: true },
-        { key: 'purchaseDate', label: 'Ngày mua', type: 'date', sortable: true },
-        {
-            key: 'status',
-            label: 'Trạng thái',
-            type: 'badge',
-            badgeTone: (row: LicenseHistoryEntry) => this.statusTone(row.status),
+  /** ✅ Columns */
+  columns: UiTableColumn<LicenseHistoryEntry>[] = [{
+    key: 'id',
+    label: 'ID',
+    width: '90px',
+    sortable: true
+  }, {key: 'packageName', label: 'Gói', sortable: true}, {
+    key: 'amountPaid',
+    label: 'Số tiền',
+    type: 'money',
+    align: 'right',
+    sortable: true
+  }, {key: 'purchaseDate', label: 'Ngày mua', type: 'date', sortable: true}, {
+    key: 'status',
+    label: 'Trạng thái',
+    type: 'badge',
+    badgeTone: (row: LicenseHistoryEntry) => this.statusTone(row.status),
+  },];
+
+  /** ✅ Actions */
+  headerActions: UiTableHeaderAction[] = [
+    {
+      key: 'add',
+      label: 'Thêm mới',
+      icon: '➕',
+      tone: 'primary',
+      run: () => this.addNew(),
+    },
+    {
+      key: 'refresh',
+      label: 'Tải lại',
+      icon: '🔄',
+      tone: 'default',  // ✅ optional nhưng nên thêm cho đồng nhất
+      run: () => this.load(),
+    },
+  ];
+
+
+  actions: UiTableAction<LicenseHistoryEntry>[] = [{
+    key: 'detail', label: 'Xem chi tiết', icon: '👁️', run: (row) => this.openDrawer(row),
+  }, {
+    key: 'delete', label: 'Xóa', icon: '🗑️', tone: 'danger', confirm: {
+      title: 'Xác nhận xóa', message: 'Bạn chắc chắn muốn xóa lịch sử license này?', okText: 'Xóa', cancelText: 'Hủy',
+    }, run: (row) => this.deleteRow(row),
+  },];
+
+  /** ✅ Drawer config */
+  statusOptions: DrawerOption[] = [{value: 'PENDING', label: 'Đang chờ'}, {
+    value: 'COMPLETED',
+    label: 'Hoàn tất'
+  }, {value: 'FAILED', label: 'Thất bại'}, {value: 'CANCELLED', label: 'Đã hủy'},];
+
+  drawerFields: DrawerField<LicenseHistoryEntry>[] = [{key: 'id', label: 'ID'}, {
+    key: 'packageName',
+    label: 'Gói'
+  }, {key: 'amountPaid', label: 'Số tiền', type: 'money'}, {
+    key: 'purchaseDate',
+    label: 'Ngày mua',
+    type: 'date'
+  }, {key: 'status', label: 'Trạng thái', type: 'select', editable: true}, {
+    key: 'note',
+    label: 'Ghi chú',
+    type: 'textarea',
+    editable: true,
+    placeholder: 'Nhập ghi chú cho giao dịch...'
+  },];
+
+  constructor(private license: LicenseService) {
+    this.fetch();
+  }
+
+  fetch() {
+    this.loading.set(true);
+
+    this.license
+      .searchLicenseHistory({
+        page: this.page(), size: this.pageSize(), keyword: this.keyword(),
+      })
+      .subscribe({
+        next: (res: PagedResponse<LicenseHistoryEntry>) => {
+          this.loading.set(false);
+          this.rows.set(res.content || []);
+          this.total.set(res.totalElements || 0);
+        }, error: () => {
+          this.loading.set(false);
+          this.rows.set([]);
+          this.total.set(0);
         },
-    ];
+      });
+  }
 
-    /** ✅ Actions */
-    actions: UiTableAction<LicenseHistoryEntry>[] = [
-        {
-            label: 'Xem chi tiết',
-            icon: '👁️',
-            run: (row) => this.openDrawer(row),
+  onSearch(v: string) {
+    this.keyword.set(v);
+    this.page.set(0);
+    this.fetch();
+  }
+
+  onPageChange(p: number) {
+    this.page.set(p);
+    this.fetch();
+  }
+
+  onSizeChange(s: number) {
+    this.pageSize.set(s);
+    this.page.set(0);
+    this.fetch();
+  }
+
+  openDrawer(row: LicenseHistoryEntry) {
+    this.currentRow.set(row);
+    this.drawerOpen.set(true);
+  }
+
+  closeDrawer() {
+    this.drawerOpen.set(false);
+  }
+
+  saveDrawer(patch: Partial<LicenseHistoryEntry>) {
+    const row = this.currentRow();
+    if (!row) return;
+
+    this.license
+      .updateLicenseHistory(row.id, {
+        status: patch['status'] as string, note: patch['note'] as string,
+      })
+      .subscribe({
+        next: () => {
+          this.drawerOpen.set(false);
+          this.fetch();
         },
-    ];
+      });
+  }
 
-    /** ✅ Drawer config */
-    statusOptions: DrawerOption[] = [
-        { value: 'PENDING', label: 'Đang chờ' },
-        { value: 'COMPLETED', label: 'Hoàn tất' },
-        { value: 'FAILED', label: 'Thất bại' },
-        { value: 'CANCELLED', label: 'Đã hủy' },
-    ];
-
-    drawerFields: DrawerField<LicenseHistoryEntry>[] = [
-        { key: 'id', label: 'ID' },
-        { key: 'packageName', label: 'Gói' },
-        { key: 'amountPaid', label: 'Số tiền', type: 'money' },
-        { key: 'purchaseDate', label: 'Ngày mua', type: 'date' },
-        { key: 'status', label: 'Trạng thái', type: 'select', editable: true },
-        { key: 'note', label: 'Ghi chú', type: 'textarea', editable: true, placeholder: 'Nhập ghi chú cho giao dịch...' },
-    ];
-
-    constructor(private license: LicenseService) {
-        this.fetch();
+  statusTone(status: string) {
+    switch (status) {
+      case 'COMPLETED':
+        return 'green';
+      case 'PENDING':
+        return 'warn';
+      case 'FAILED':
+        return 'red';
+      case 'CANCELLED':
+        return 'gray';
+      default:
+        return 'blue';
     }
+  }
 
-    fetch() {
-        this.loading.set(true);
+  /** ✅ Header Action: Thêm mới */
+  addNew() {
+    // ✅ Bạn có thể mở drawer với row empty để nhập
+    const empty: LicenseHistoryEntry = {
+      id: 'NEW', packageName: '', amountPaid: 0, purchaseDate: new Date().toISOString(), status: 'PENDING', note: '',
+    } as any;
 
-        this.license
-            .searchLicenseHistory({
-                page: this.page(),
-                size: this.pageSize(),
-                keyword: this.keyword(),
-            })
-            .subscribe({
-                next: (res: PagedResponse<LicenseHistoryEntry>) => {
-                    this.loading.set(false);
-                    this.rows.set(res.content || []);
-                    this.total.set(res.totalElements || 0);
-                },
-                error: () => {
-                    this.loading.set(false);
-                    this.rows.set([]);
-                    this.total.set(0);
-                },
-            });
-    }
+    this.currentRow.set(empty);
+    this.drawerOpen.set(true);
+  }
 
-    onSearch(v: string) {
-        this.keyword.set(v);
-        this.page.set(0);
-        this.fetch();
-    }
+  /** ✅ Header Action: Load/Refresh */
+  load() {
+    this.fetch();
+  }
 
-    onPageChange(p: number) {
-        this.page.set(p);
-        this.fetch();
-    }
+  /** ✅ Row Action: Delete */
+  deleteRow(row: LicenseHistoryEntry) {
+    if (!row?.id) return;
 
-    onSizeChange(s: number) {
-        this.pageSize.set(s);
-        this.page.set(0);
-        this.fetch();
-    }
+    this.loading.set(true);
 
-    openDrawer(row: LicenseHistoryEntry) {
-        this.currentRow.set(row);
-        this.drawerOpen.set(true);
-    }
+    // ✅ Bạn cần có API deleteLicenseHistory(id)
+    // Nếu chưa có thì mình sẽ hướng dẫn thêm ngay.
+    this.license.deleteLicenseHistory(row.id).subscribe({
+      next: () => {
+        this.loading.set(false);
 
-    closeDrawer() {
-        this.drawerOpen.set(false);
-    }
+        // ✅ remove locally to make UI snappy
+        this.rows.update((list) => list.filter((x) => x.id !== row.id));
+        this.total.update((t) => Math.max(0, t - 1));
 
-    saveDrawer(patch: Partial<LicenseHistoryEntry>) {
-        const row = this.currentRow();
-        if (!row) return;
+        // ✅ clear selected row if it was selected
+        this.selectedRows = this.selectedRows.filter((x) => x.id !== row.id);
+      }, error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
 
-        this.license
-            .updateLicenseHistory(row.id, {
-                status: patch['status'] as string,
-                note: patch['note'] as string,
-            })
-            .subscribe({
-                next: () => {
-                    this.drawerOpen.set(false);
-                    this.fetch();
-                },
-            });
-    }
-
-    statusTone(status: string) {
-        switch (status) {
-            case 'COMPLETED': return 'green';
-            case 'PENDING': return 'warn';
-            case 'FAILED': return 'red';
-            case 'CANCELLED': return 'gray';
-            default: return 'blue';
-        }
-    }
 }

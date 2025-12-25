@@ -19,6 +19,22 @@
         </div>
 
         <div class="h-right">
+            <!-- ✅ Header actions (Thêm mới / Xóa chọn / Refresh...) -->
+            <div class="header-actions" *ngIf="headerActions()?.length">
+              <button
+                class="ha-btn"
+                *ngFor="let a of headerActions()"
+                type="button"
+                [class.primary]="a.tone === 'primary'"
+                [class.danger]="a.tone === 'danger'"
+                [disabled]="a.disabled"
+                (click)="runHeaderAction(a, $event)"
+              >
+                <span class="ic" *ngIf="a.icon">{{ a.icon }}</span>
+                {{ a.label }}
+              </button>
+            </div>
+
             <!-- Search -->
           <!-- ✅ Store select -->
           <div class="store-filter" *ngIf="enableStoreFilter() && stores().length">
@@ -179,7 +195,7 @@
                     <!-- Actions -->
                     <td class="td-actions" *ngIf="actions()?.length">
                         <div class="row-actions">
-                            <button class="dots" type="button" (click)="toggleRowActions(i, $event)">⋯</button>
+                            <button class="dots" type="button" (click)="toggleRowActions(i, $event)" title="Actions">⋯</button>
 
                             <div class="actions-pop" *ngIf="openRowActionIndex() === i" (click)="$event.stopPropagation()">
                                 <button
@@ -187,7 +203,7 @@
                                         *ngFor="let a of actions()"
                                         [class.danger]="a.tone === 'danger'"
                                         type="button"
-                                        (click)="runAction(a, row, $event)"
+                                        (click)="runAction(a, row, $event)" [disabled]="a.disabled?.(row)"
                                 >
                                     <span class="ic">{{ a.icon || '•' }}</span>
                                     <span>{{ a.label }}</span>
@@ -235,4 +251,21 @@
             </div>
         </div>
     </div>
+</div>
+
+
+<!-- ✅ Confirm Modal -->
+<div class="confirm-backdrop" *ngIf="confirmState() as c" (click)="confirmCancel()">
+  <div class="confirm-card" (click)="$event.stopPropagation()">
+    <div class="confirm-title">{{ c.title }}</div>
+    <div class="confirm-message">{{ c.message }}</div>
+    <div class="confirm-actions">
+      <button class="btn ghost" type="button" (click)="confirmCancel()">
+        {{ c.cancelText }}
+      </button>
+      <button class="btn danger" type="button" (click)="confirmOk()">
+        {{ c.okText }}
+      </button>
+    </div>
+  </div>
 </div>

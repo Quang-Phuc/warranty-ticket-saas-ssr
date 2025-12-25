@@ -33,10 +33,41 @@ export interface UiTableColumn<T = any> {
   value?: (row: T) => any;
 }
 
-export interface UiTableAction<T = any> {
+export interface UiTableHeaderAction {
+  key: string;
   label: string;
   icon?: string;
-  tone?: 'default' | 'danger';
+  tone?: 'default' | 'danger' | 'primary';
+  disabled?: boolean;
+  /** Optional: confirm trước khi run */
+  confirm?: {
+    title?: string;
+    message: string;
+    okText?: string;
+    cancelText?: string;
+  };
+  run: () => void;
+}
+
+export interface UiTableAction<T = any> {
+  /** Unique key để track action */
+  key: string;
+
+  label: string;
+  icon?: string;
+  tone?: 'default' | 'danger' | 'primary';
+
+  /** Optional: disable theo row */
+  disabled?: (row: T) => boolean;
+
+  /** Optional: confirm trước khi run */
+  confirm?: {
+    title?: string;
+    message: string;
+    okText?: string;
+    cancelText?: string;
+  };
+
   run: (row: T) => void;
 }
 
@@ -65,6 +96,9 @@ export class UiTableProComponent<T = any> {
 
   enableSelect = input<boolean>(false);
 
+  /** ✅ NEW: actions ở header (Thêm mới, Xóa chọn, Refresh, Import...) */
+  headerActions = input<UiTableHeaderAction[]>([]);
+
   searchPlaceholder = input<string>('Tìm kiếm...');
   columns = input<UiTableColumn<T>[]>([]);
   actions = input<UiTableAction<T>[] | null>(null);
@@ -87,6 +121,15 @@ export class UiTableProComponent<T = any> {
   searchTerm = signal('');
   openColPicker = signal(false);
   openRowActionIndex = signal<number | null>(null);
+
+  /** ✅ Confirm dialog state */
+  confirmState = signal<{
+    title: string;
+    message: string;
+    okText: string;
+    cancelText: string;
+    onOk: () => void;
+  } | null>(null);
 
   /** ✅ sort state */
   sortKey = signal<string>('');
@@ -285,8 +328,70 @@ export class UiTableProComponent<T = any> {
   }
   runAction(a: UiTableAction<T>, row: T, ev: MouseEvent) {
     ev.stopPropagation();
-    a.run(row);
-    this.openRowActionIndex.set(null);
+
+    if (a.disabled?.(row)) return;
+
+    const doRun = () => {
+      a.run(row);
+      this.openRowActionIndex.set(null);
+    };
+
+    if (a.confirm) {
+      this.openRowActionIndex.set(null);
+      this.openConfirm({
+        title: a.confirm.title || 'Xác nhận',
+        message: a.confirm.message,
+        okText: a.confirm.okText || 'Đồng ý',
+        cancelText: a.confirm.cancelText || 'Hủy',
+        onOk: doRun,
+      });
+      return;
+    }
+
+    doRun();
+  }
+
+  // ===== Header actions =====
+  runHeaderAction(a: UiTableHeaderAction, ev: MouseEvent) {
+    ev.stopPropagation();
+    if (a.disabled) return;
+
+    const doRun = () => a.run();
+
+    if (a.confirm) {
+      this.openConfirm({
+        title: a.confirm.title || 'Xác nhận',
+        message: a.confirm.message,
+        okText: a.confirm.okText || 'Đồng ý',
+        cancelText: a.confirm.cancelText || 'Hủy',
+        onOk: doRun,
+      });
+      return;
+    }
+
+    doRun();
+  }
+
+  // ===== Confirm modal =====
+  openConfirm(cfg: {
+    title: string;
+    message: string;
+    okText: string;
+    cancelText: string;
+    onOk: () => void;
+  }) {
+    this.confirmState.set(cfg);
+  }
+
+  confirmOk() {
+    const st = this.confirmState();
+    if (!st) return;
+    st.onOk();
+    this.confirmState.set(null);
+  }
+
+  confirmCancel() {
+    this.confirmState.set(null);
   }
 
   @HostListener('document:click')

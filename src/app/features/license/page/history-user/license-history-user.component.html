@@ -1,4 +1,8 @@
 <ui-table-pro
+  [headerActions]="headerActions"
+  [enableSelect]="true"
+  (selectionChange)="selectedRows = $event"
+
   title="Lịch sử mua license"
   subtitle="Theo dõi giao dịch mua/ gia hạn license"
   [rows]="rows()"
