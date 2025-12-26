@@ -1,4 +1,5 @@
 <div class="upload">
+    <!-- input hidden -->
     <input
         #fileInput
         type="file"
@@ -9,33 +10,73 @@
         (change)="onPick(fileInput)"
     />
 
-    <button class="pick-btn" type="button" (click)="fileInput.click()" [disabled]="disabled()">
+    <!-- pick button -->
+    <button
+            class="pick-btn"
+            type="button"
+            (click)="fileInput.click()"
+            [disabled]="disabled()"
+    >
         <span class="icon">⬆</span>
-        <span>Chọn {{ mode().includes('image') ? 'ảnh' : 'file' }}</span>
+        <span>
+      Chọn {{ mode().includes('image') ? 'ảnh' : 'file' }}
+            <span class="hint" *ngIf="mode() === 'images' || mode() === 'files'">
+        (nhiều)
+      </span>
+    </span>
     </button>
 
-    <!-- ✅ IMAGE MODE -->
+    <!-- ✅ IMAGE PREVIEW (image/images) -->
     <div class="thumbs" *ngIf="previews().length">
         <div class="thumb" *ngFor="let url of previews(); let i = index">
             <img [src]="url" />
-            <button class="remove" type="button" (click)="removeAt(i)" [disabled]="disabled()">
+            <button
+                    class="remove"
+                    title="Xóa ảnh"
+                    type="button"
+                    (click)="removeAt(i)"
+                    [disabled]="disabled()"
+            >
                 ✕
             </button>
         </div>
     </div>
 
-    <!-- ✅ FILE MODE -->
-    <div class="files" *ngIf="!previews().length && (singleFile() || multiFiles().length)">
+    <!-- ✅ FILE VIEW (file/files) -->
+    <div
+            class="files"
+            *ngIf="!previews().length && (singleFile() || multiFiles().length)"
+    >
+        <!-- single file -->
         <div class="file" *ngIf="singleFile()">
-            <span class="name" [title]="singleFile()?.name">{{ singleFile()?.name }}</span>
-            <button class="remove" type="button" (click)="removeAt(0)" [disabled]="disabled()">
+            <span class="file-icon">📄</span>
+            <span class="name" [title]="singleFile()?.name">
+        {{ singleFile()?.name }}
+      </span>
+
+            <button
+                    class="remove"
+                    title="Xóa file"
+                    type="button"
+                    (click)="removeAt(0)"
+                    [disabled]="disabled()"
+            >
                 ✕
             </button>
         </div>
 
+        <!-- multi file -->
         <div class="file" *ngFor="let f of multiFiles(); let i = index">
+            <span class="file-icon">📄</span>
             <span class="name" [title]="f.name">{{ f.name }}</span>
-            <button class="remove" type="button" (click)="removeAt(i)" [disabled]="disabled()">
+
+            <button
+                    class="remove"
+                    title="Xóa file"
+                    type="button"
+                    (click)="removeAt(i)"
+                    [disabled]="disabled()"
+            >
                 ✕
             </button>
         </div>
