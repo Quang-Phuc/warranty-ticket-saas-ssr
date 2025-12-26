@@ -41,6 +41,7 @@ export interface LicenseHistoryEntry {
   userId: number;
   status: string;
   note?: string;
+  storeId?: string;
 
   // ✅ nếu backend có trả ảnh
   images?: string[];
@@ -84,7 +85,12 @@ export class LicenseService {
   }
 
   /** ✅ POST search (backend search) */
-  searchLicenseHistory(body: LicenseHistorySearchReq): Observable<PagedResponse<LicenseHistoryEntry>> {
+  searchLicenseHistory(body: {
+    size: number;
+    page: number;
+    keyword: string;
+    storeId: number | null
+  }): Observable<PagedResponse<LicenseHistoryEntry>> {
     return this.api.postData<PagedResponse<LicenseHistoryEntry>>('license-history/search', body);
   }
 

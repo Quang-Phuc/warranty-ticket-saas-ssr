@@ -21,6 +21,13 @@ import { FieldConfig } from '../../../../shared/ui/ui-dynamic-form/ui-dynamic-fo
 import { buildFormData } from '../../../../shared/utils/build-form-data';
 import { AddModalService } from '../../../../shared/services/add-modal.service';
 
+export interface StoreDto {
+  id: number;
+  name: string;
+  address?: string;
+  note?: string;
+}
+
 @Component({
   selector: 'license-history-user',
   standalone: true,
@@ -42,6 +49,10 @@ export class LicenseHistoryUserComponent {
 
   currentRow = signal<LicenseHistoryEntry | null>(null);
   drawerOpen = signal(false);
+
+  // ✅ NEW: store list + selected storeId
+  stores = signal<StoreDto[]>([]);
+  selectedStoreId = signal<number | null>(null);
 
   /** ✅ Columns */
   columns: UiTableColumn<LicenseHistoryEntry>[] = [
@@ -132,7 +143,6 @@ export class LicenseHistoryUserComponent {
     { key: 'packageName', label: 'Tên gói', type: 'text', required: true },
     { key: 'amountPaid', label: 'Số tiền', type: 'money', required: true },
     { key: 'purchaseDate', label: 'Ngày mua', type: 'date', required: true },
-
     {
       key: 'status',
       label: 'Trạng thái',
@@ -140,15 +150,17 @@ export class LicenseHistoryUserComponent {
       required: true,
       options: this.statusOptions.map(x => ({ label: x.label, value: x.value }))
     },
-
     { key: 'note', label: 'Ghi chú', type: 'textarea' },
 
-    // ✅ IMPORTANT: upload nhiều ảnh
+    // ✅ upload nhiều ảnh
     {
       key: 'images',
       label: 'Ảnh giao dịch',
-      type: 'file',
+      type: 'images',
       required: false,
+      accept: 'image/*',
+      multiple: true,
+      maxFiles: 10,
     },
   ];
 
@@ -156,6 +168,48 @@ export class LicenseHistoryUserComponent {
       private license: LicenseService,
       private addModal: AddModalService
   ) {
+    this.loadStoresFromStorage();
+    this.fetch();
+  }
+
+  /** ✅ load stores + selectedStoreId from localStorage */
+  loadStoresFromStorage() {
+    try {
+      const storesRaw = localStorage.getItem('stores');
+      const selectedRaw = localStorage.getItem('selectedStoreId');
+
+      const stores: StoreDto[] = storesRaw ? JSON.parse(storesRaw) : [];
+      this.stores.set(Array.isArray(stores) ? stores : []);
+
+      const selected = selectedRaw ? Number(selectedRaw) : null;
+      const selectedId = selectedRaw && !isNaN(selected as any) ? selected : null;
+
+      if (this.stores().length) {
+        const isValid = selectedId && this.stores().some((s) => s.id === selectedId);
+        const finalId = isValid ? selectedId : this.stores()[0].id;
+
+        this.selectedStoreId.set(finalId);
+        localStorage.setItem('selectedStoreId', String(finalId));
+      } else {
+        this.selectedStoreId.set(null);
+        localStorage.removeItem('selectedStoreId');
+      }
+    } catch {
+      this.stores.set([]);
+      this.selectedStoreId.set(null);
+    }
+  }
+
+  /** ✅ user change store */
+  onStoreChange(v: any) {
+    const id = Number(v);
+    if (isNaN(id)) return;
+
+    this.selectedStoreId.set(id);
+    localStorage.setItem('selectedStoreId', String(id));
+
+    // ✅ reload list
+    this.page.set(0);
     this.fetch();
   }
 
@@ -167,6 +221,7 @@ export class LicenseHistoryUserComponent {
           page: this.page(),
           size: this.pageSize(),
           keyword: this.keyword(),
+          storeId: this.selectedStoreId(), // ✅ ONLY ADD THIS
         })
         .subscribe({
           next: (res: PagedResponse<LicenseHistoryEntry>) => {
@@ -240,10 +295,9 @@ export class LicenseHistoryUserComponent {
     }
   }
 
-  /** ✅ Header Action: Thêm mới (Modal) */
   openAddModal() {
     const initModel = {
-      purchaseDate: new Date().toISOString().slice(0, 10), // yyyy-mm-dd cho input type=date
+      purchaseDate: new Date().toISOString().slice(0, 10),
       status: 'PENDING',
       amountPaid: 0,
     };
@@ -254,7 +308,6 @@ export class LicenseHistoryUserComponent {
         .subscribe((result: any) => {
           if (!result) return;
 
-          // ✅ convert model -> FormData (multipart)
           const fd = buildFormData(result, this.addFields);
 
           this.loading.set(true);
@@ -270,12 +323,10 @@ export class LicenseHistoryUserComponent {
         });
   }
 
-  /** ✅ Header Action: Load/Refresh */
   load() {
     this.fetch();
   }
 
-  /** ✅ Row Action: Delete */
   deleteRow(row: LicenseHistoryEntry) {
     if (!row?.id) return;
 
@@ -284,12 +335,8 @@ export class LicenseHistoryUserComponent {
     this.license.deleteLicenseHistory(row.id).subscribe({
       next: () => {
         this.loading.set(false);
-
-        // ✅ remove locally to make UI snappy
         this.rows.update((list) => list.filter((x) => x.id !== row.id));
         this.total.update((t) => Math.max(0, t - 1));
-
-        // ✅ clear selected row if it was selected
         this.selectedRows = this.selectedRows.filter((x) => x.id !== row.id);
       },
       error: () => {

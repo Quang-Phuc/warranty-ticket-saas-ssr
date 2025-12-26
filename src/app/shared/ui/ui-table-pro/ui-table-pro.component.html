@@ -20,82 +20,83 @@
 
         <div class="h-right">
             <div class="toolbar-card">
-            <!-- ✅ Header actions (Thêm mới / Xóa chọn / Refresh...) -->
-            <div class="header-actions" *ngIf="headerActions()?.length">
-              <button
-                class="ha-btn"
-                *ngFor="let a of headerActions()"
-                type="button"
-                [class.primary]="a.tone === 'primary'"
-                [class.danger]="a.tone === 'danger'"
-                [disabled]="a.disabled"
-                (click)="runHeaderAction(a, $event)"
-              >
-                <span class="ic" *ngIf="a.icon">{{ a.icon }}</span>
-                {{ a.label }}
-              </button>
-            </div>
 
-            <!-- Search -->
-          <!-- ✅ Store select -->
-          <div class="store-filter" *ngIf="enableStoreFilter() && stores().length">
-            <span class="si">🏪</span>
+                <!-- ✅ Header actions -->
+                <div class="header-actions" *ngIf="headerActions()?.length">
+                    <button
+                            class="ha-btn"
+                            *ngFor="let a of headerActions()"
+                            type="button"
+                            [class.primary]="a.tone === 'primary'"
+                            [class.danger]="a.tone === 'danger'"
+                            [disabled]="a.disabled"
+                            (click)="runHeaderAction(a, $event)"
+                    >
+                        <span class="ic" *ngIf="a.icon">{{ a.icon }}</span>
+                        {{ a.label }}
+                    </button>
+                </div>
 
-            <div class="select-wrap">
-              <select
-                class="store-select"
-                [ngModel]="selectedStoreId()"
-                (ngModelChange)="onStoreChange($event)"
-              >
-                <option *ngFor="let s of stores()" [ngValue]="s.id">
-                  {{ s.name }}
-                </option>
-              </select>
+                <!-- ✅ Store select -->
+                <div class="store-filter" *ngIf="enableStoreFilter() && stores().length">
+                    <span class="si">🏪</span>
 
-              <span class="caret">▾</span>
-            </div>
-          </div>
+                    <div class="select-wrap">
+                        <select
+                                class="store-select"
+                                [ngModel]="selectedStoreId()"
+                                (ngModelChange)="onStoreChange($event)"
+                        >
+                            <option *ngFor="let s of stores()" [ngValue]="s.id">
+                                {{ s.name }}
+                            </option>
+                        </select>
 
-
-          <div class="search" *ngIf="enableSearch()">
-                <span class="si">🔎</span>
-                <input
-                        class="search-input"
-                        [ngModel]="searchTerm()"
-                        (ngModelChange)="onSearchInput($event)"
-                        [placeholder]="searchPlaceholder()"
-                />
-                <button class="clear" type="button" *ngIf="searchTerm()" (click)="clearSearch()">
-                    ✕
-                </button>
-            </div>
-
-            <!-- Column picker -->
-            <div class="col-picker" *ngIf="enableColumnPicker()">
-                <button class="icon-btn" type="button" (click)="toggleColPicker(); $event.stopPropagation()">
-                    🧩 Cột
-                    <span class="dot" *ngIf="hasAnyHidden()"></span>
-                </button>
-
-                <div class="picker-pop" *ngIf="openColPicker()" (click)="$event.stopPropagation()">
-                    <div class="picker-title">
-                        <strong>Ẩn/Hiện cột</strong>
-                        <button class="link" type="button" (click)="resetColumns()">Reset</button>
-                    </div>
-
-                    <div class="picker-list">
-                        <label class="pick" *ngFor="let c of (localCols().length ? localCols() : columns())">
-                            <input type="checkbox" [checked]="!c.hidden" (change)="toggleColumn(c)" />
-                            <span>{{ c.label }}</span>
-                        </label>
+                        <span class="caret">▾</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Export -->
-            <button class="icon-btn" type="button" *ngIf="enableExport()" (click)="exportCsv()">
-                ⤓ CSV
-            </button>
+                <!-- Search -->
+                <div class="search" *ngIf="enableSearch()">
+                    <span class="si">🔎</span>
+                    <input
+                            class="search-input"
+                            [ngModel]="searchTerm()"
+                            (ngModelChange)="onSearchInput($event)"
+                            [placeholder]="searchPlaceholder()"
+                    />
+                    <button class="clear" type="button" *ngIf="searchTerm()" (click)="clearSearch()">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Column picker -->
+                <div class="col-picker" *ngIf="enableColumnPicker()">
+                    <button class="icon-btn" type="button" (click)="toggleColPicker(); $event.stopPropagation()">
+                        🧩 Cột
+                        <span class="dot" *ngIf="hasAnyHidden()"></span>
+                    </button>
+
+                    <div class="picker-pop" *ngIf="openColPicker()" (click)="$event.stopPropagation()">
+                        <div class="picker-title">
+                            <strong>Ẩn/Hiện cột</strong>
+                            <button class="link" type="button" (click)="resetColumns()">Reset</button>
+                        </div>
+
+                        <div class="picker-list">
+                            <label class="pick" *ngFor="let c of (localCols().length ? localCols() : columns())">
+                                <input type="checkbox" [checked]="!c.hidden" (change)="toggleColumn(c)" />
+                                <span>{{ c.label }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export -->
+                <button class="icon-btn" type="button" *ngIf="enableExport()" (click)="exportCsv()">
+                    ⤓ CSV
+                </button>
+
             </div>
         </div>
     </div>
@@ -170,24 +171,20 @@
                             [class.right]="c.align === 'right'"
                     >
                         <ng-container [ngSwitch]="c.type || 'text'">
-                            <!-- money -->
                             <ng-container *ngSwitchCase="'money'">
                                 <span class="money">{{ formatMoney(getCellValue(row, c)) }}</span>
                             </ng-container>
 
-                            <!-- date -->
                             <ng-container *ngSwitchCase="'date'">
                                 <span class="date">{{ formatDate(getCellValue(row, c)) }}</span>
                             </ng-container>
 
-                            <!-- badge -->
                             <ng-container *ngSwitchCase="'badge'">
                   <span class="badge" [attr.data-tone]="c.badgeTone ? c.badgeTone(row) : 'gray'">
                     {{ getCellValue(row, c) }}
                   </span>
                             </ng-container>
 
-                            <!-- default -->
                             <ng-container *ngSwitchDefault>
                                 <span class="txt" [title]="getCellValue(row, c)">{{ getCellValue(row, c) }}</span>
                             </ng-container>
@@ -197,7 +194,9 @@
                     <!-- Actions -->
                     <td class="td-actions" *ngIf="actions()?.length">
                         <div class="row-actions">
-                            <button class="dots" type="button" (click)="toggleRowActions(i, $event)" title="Actions">⋯</button>
+                            <button class="dots" type="button" (click)="toggleRowActions(i, $event)" title="Actions">
+                                ⋯
+                            </button>
 
                             <div class="actions-pop" *ngIf="openRowActionIndex() === i" (click)="$event.stopPropagation()">
                                 <button
@@ -205,7 +204,8 @@
                                         *ngFor="let a of actions()"
                                         [class.danger]="a.tone === 'danger'"
                                         type="button"
-                                        (click)="runAction(a, row, $event)" [disabled]="a.disabled?.(row)"
+                                        (click)="runAction(a, row, $event)"
+                                        [disabled]="a.disabled?.(row)"
                                 >
                                     <span class="ic">{{ a.icon || '•' }}</span>
                                     <span>{{ a.label }}</span>
@@ -255,19 +255,18 @@
     </div>
 </div>
 
-
 <!-- ✅ Confirm Modal -->
 <div class="confirm-backdrop" *ngIf="confirmState() as c" (click)="confirmCancel()">
-  <div class="confirm-card" (click)="$event.stopPropagation()">
-    <div class="confirm-title">{{ c.title }}</div>
-    <div class="confirm-message">{{ c.message }}</div>
-    <div class="confirm-actions">
-      <button class="btn ghost" type="button" (click)="confirmCancel()">
-        {{ c.cancelText }}
-      </button>
-      <button class="btn danger" type="button" (click)="confirmOk()">
-        {{ c.okText }}
-      </button>
+    <div class="confirm-card" (click)="$event.stopPropagation()">
+        <div class="confirm-title">{{ c.title }}</div>
+        <div class="confirm-message">{{ c.message }}</div>
+        <div class="confirm-actions">
+            <button class="btn ghost" type="button" (click)="confirmCancel()">
+                {{ c.cancelText }}
+            </button>
+            <button class="btn danger" type="button" (click)="confirmOk()">
+                {{ c.okText }}
+            </button>
+        </div>
     </div>
-  </div>
 </div>

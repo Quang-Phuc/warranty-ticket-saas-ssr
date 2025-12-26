@@ -1,0 +1,17 @@
+<ui-table-pro
+        title="Quản lý user"
+        subtitle="Danh sách người dùng hệ thống"
+        [loading]="loading()"
+        [rows]="rows()"
+        [total]="total()"
+        [page]="page()"
+        [pageSize]="pageSize()"
+        [enableSearch]="true"
+        [enableColumnPicker]="true"
+        [headerActions]="headerActions"
+        [columns]="columns"
+        (searchChange)="onSearchChange($event)"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+>
+</ui-table-pro>

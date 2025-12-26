@@ -14,6 +14,9 @@ export const SHELL_ROUTES: Routes = [
       { path: 'customers', loadChildren: () => import('../customers/customers.routes').then(m => m.CUSTOMERS_ROUTES) },
       { path: 'assets', loadChildren: () => import('../assets/assets.routes').then(m => m.ASSETS_ROUTES) },
       { path: 'warranties', loadChildren: () => import('../warranties/warranties.routes').then(m => m.WARRANTIES_ROUTES) },
+      // ✅ NEW: Quản lý user
+      { path: 'users',loadChildren: () =>import('../users/users.routes').then((m) => m.USERS_ROUTES),},
+
 
       // License
       {
