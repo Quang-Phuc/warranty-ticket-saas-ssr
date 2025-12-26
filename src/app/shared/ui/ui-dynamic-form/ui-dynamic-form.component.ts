@@ -33,7 +33,9 @@ export class UiDynamicFormComponent<T = any> {
 
   modelChange = output<Record<string, any>>();
   validChange = output<boolean>();
+  errorFocus = output<string>();
 
+  touched = signal(false);
   errors = signal<Record<string, string>>({});
 
   visibleFields = computed(() =>
@@ -68,9 +70,11 @@ export class UiDynamicFormComponent<T = any> {
       const k = this.keyStr(f.key);
       const v = m?.[k];
 
-      if (f.required && (v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0))) {
-        errs[k] = 'Trường này bắt buộc';
-        continue;
+      if (f.required) {
+        const empty =
+            v === null || v === undefined || v === '' ||
+            (Array.isArray(v) && v.length === 0);
+        if (empty) errs[k] = 'Trường này bắt buộc';
       }
 
       if (f.validator) {
@@ -80,12 +84,16 @@ export class UiDynamicFormComponent<T = any> {
     }
 
     this.errors.set(errs);
-    this.validChange.emit(Object.keys(errs).length === 0);
+    const ok = Object.keys(errs).length === 0;
+    this.validChange.emit(ok);
+
+    // ✅ emit field lỗi đầu tiên để focus
+    if (!ok) {
+      const firstKey = Object.keys(errs)[0];
+      this.errorFocus.emit(firstKey);
+    }
   }
 
-  errorOf(key: any) {
-    return this.errors()[this.keyStr(key)];
-  }
 
   getValue(key: any) {
     return this.model()[this.keyStr(key)];
@@ -100,5 +108,14 @@ export class UiDynamicFormComponent<T = any> {
     });
   });
 
+  /** ✅ gọi khi bấm submit */
+  markAllTouchedAndValidate() {
+    this.touched.set(true);
+    this.validateAll(this.model());
+  }
 
+  errorOf(key: any) {
+    const k = this.keyStr(key);
+    return this.touched() ? this.errors()[k] : null;
+  }
 }

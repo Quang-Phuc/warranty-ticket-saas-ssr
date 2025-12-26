@@ -1,20 +1,11 @@
-import { Component, Inject, signal, AfterViewInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-
+import { Component, Inject, signal, AfterViewInit, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UiDynamicFormComponent } from '../ui-dynamic-form/ui-dynamic-form.component';
-import { FieldConfig } from '../ui-dynamic-form/ui-dynamic-form.types';
-
-export interface UiFormModalData {
-  title: string;
-  fields: FieldConfig[];
-  initModel?: Record<string, any>;
-}
 
 @Component({
   selector: 'ui-form-modal',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, UiDynamicFormComponent],
+  imports: [UiDynamicFormComponent],
   templateUrl: './ui-form-modal.component.html',
   styleUrl: './ui-form-modal.component.scss',
 })
@@ -22,17 +13,17 @@ export class UiFormModalComponent implements AfterViewInit {
   draft = signal<Record<string, any>>({});
   valid = signal(true);
 
+  @ViewChild(UiDynamicFormComponent) form!: UiDynamicFormComponent;
+
   constructor(
-      @Inject(MAT_DIALOG_DATA) public data: UiFormModalData,
+      @Inject(MAT_DIALOG_DATA) public data: any,
       private dialogRef: MatDialogRef<UiFormModalComponent>
   ) {
     this.draft.set({ ...(data.initModel || {}) });
   }
 
-  /** ✅ Auto focus vào field required đầu tiên */
   ngAfterViewInit() {
     setTimeout(() => {
-      // tìm field đầu tiên có data-required="1"
       const el = document.querySelector('.modal-body [data-required="1"]') as HTMLElement | null;
       el?.focus();
     }, 80);
@@ -43,7 +34,27 @@ export class UiFormModalComponent implements AfterViewInit {
   }
 
   submit() {
-    if (!this.valid()) return;
+    this.form.markAllTouchedAndValidate();
+
+    if (!this.valid()) {
+      setTimeout(() => this.focusFirstError(), 50);
+      return;
+    }
+
     this.dialogRef.close(this.draft());
+  }
+
+  private focusFirstError() {
+    const el = document.querySelector('.modal-body .ng-invalid[data-required="1"], .modal-body [data-required="1"].ng-invalid')as HTMLElement | null;
+
+    // fallback: focus field có mat-error
+    const fallback = document.querySelector('.modal-body mat-error')?.closest('.mat-mdc-form-field')
+        ?.querySelector('input, textarea, mat-select') as HTMLElement | null;
+
+    const target = el || fallback;
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.focus();
+    }
   }
 }

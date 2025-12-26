@@ -5,7 +5,7 @@
             <ng-container [ngSwitch]="f.type">
 
                 <!-- ✅ TEXT -->
-                <mat-form-field *ngSwitchCase="'text'" appearance="outline">
+                <mat-form-field *ngSwitchCase="'text'" appearance="fill">
                     <mat-label>
                         {{ f.label }}
                         <span *ngIf="f.required" style="color:#f87171">*</span>
@@ -24,7 +24,7 @@
                 </mat-form-field>
 
                 <!-- ✅ NUMBER -->
-                <mat-form-field *ngSwitchCase="'number'" appearance="outline">
+                <mat-form-field *ngSwitchCase="'number'" appearance="fill">
                     <mat-label>
                         {{ f.label }}
                         <span *ngIf="f.required" style="color:#f87171">*</span>
@@ -44,7 +44,7 @@
                 </mat-form-field>
 
                 <!-- ✅ TEXTAREA -->
-                <mat-form-field *ngSwitchCase="'textarea'" appearance="outline" class="full">
+                <mat-form-field *ngSwitchCase="'textarea'" appearance="fill" class="full">
                     <mat-label>
                         {{ f.label }}
                         <span *ngIf="f.required" style="color:#f87171">*</span>
@@ -64,7 +64,7 @@
                 </mat-form-field>
 
                 <!-- ✅ DATE -->
-                <mat-form-field *ngSwitchCase="'date'" appearance="outline">
+                <mat-form-field *ngSwitchCase="'date'" appearance="fill">
                     <mat-label>
                         {{ f.label }}
                         <span *ngIf="f.required" style="color:#f87171">*</span>
@@ -83,7 +83,8 @@
                 </mat-form-field>
 
                 <!-- ✅ SELECT -->
-                <mat-form-field *ngSwitchCase="'select'" appearance="outline">
+                <!-- ✅ SELECT -->
+                <mat-form-field *ngSwitchCase="'select'" appearance="fill">
                     <mat-label>
                         {{ f.label }}
                         <span *ngIf="f.required" style="color:#f87171">*</span>
@@ -92,8 +93,8 @@
                     <mat-select
                             [attr.data-required]="f.required ? '1' : null"
                             [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                            [value]="getValue(f.key)"
-                            (selectionChange)="patch(f.key, $event.value)"
+                            [ngModel]="getValue(f.key)"
+                            (ngModelChange)="patch(f.key, $event)"
                     >
                         <mat-option [value]="null">-- Chọn --</mat-option>
                         <mat-option *ngFor="let opt of f.options || []" [value]="opt.value">
