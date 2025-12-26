@@ -47,10 +47,19 @@ export class UiDynamicFormComponent<T = any> {
 
   patch(key: any, val: any) {
     const k = this.keyStr(key);
+    const field = this.fields().find(x => this.keyStr(x.key) === k);
+
+    // ✅ nếu là select thì normalize kiểu dữ liệu
+    if (field?.type === 'select' && field.options?.length) {
+      const matched = field.options.find(o => String(o.value) === String(val));
+      val = matched ? matched.value : null;
+    }
+
     const next = { ...this.model(), [k]: val };
     this.modelChange.emit(next);
     this.validateAll(next);
   }
+
 
   validateAll(m: any) {
     const errs: Record<string, string> = {};

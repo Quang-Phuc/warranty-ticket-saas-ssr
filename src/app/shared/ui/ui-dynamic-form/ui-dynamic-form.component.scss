@@ -85,3 +85,18 @@
     grid-column: span 1;
   }
 }
+/* ✅ FIX notch tạo 2 vệt thẳng ở label */
+:host ::ng-deep .mdc-notched-outline__notch {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* ✅ label không bị background cắt */
+:host ::ng-deep .mat-mdc-floating-label {
+  background: transparent !important;
+  padding: 0 4px !important;
+}
+:host ::ng-deep textarea {
+  outline: none !important;
+  box-shadow: none !important;
+}

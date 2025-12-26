@@ -121,3 +121,7 @@ a { color: inherit; }
   --muted: rgba(255, 255, 255, 0.08);
   --shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
 }
+.ui-form-modal-panel .mat-mdc-dialog-container {
+  padding: 0 !important; // ✅ bỏ padding mặc định
+  overflow: hidden !important;
+}

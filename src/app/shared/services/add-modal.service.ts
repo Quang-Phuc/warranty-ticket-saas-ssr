@@ -9,7 +9,7 @@ export class AddModalService {
 
     open<T>(title: string, fields: FieldConfig[], initModel: any = {}) {
         return this.dialog.open(UiFormModalComponent, {
-            width: '900px',
+            width: '1200px',
             maxWidth: '95vw',
             data: { title, fields, initModel }
         });
