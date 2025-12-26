@@ -83,7 +83,6 @@
                 </mat-form-field>
 
                 <!-- ✅ SELECT -->
-                <!-- ✅ SELECT -->
                 <mat-form-field *ngSwitchCase="'select'" appearance="fill">
                     <mat-label>
                         {{ f.label }}
@@ -115,6 +114,28 @@
                     {{ f.label }}
                     <span *ngIf="f.required" style="color:#f87171">*</span>
                 </mat-checkbox>
+
+                <!-- ✅ MONEY -->
+                <mat-form-field *ngSwitchCase="'money'" appearance="outline">
+                    <mat-label>
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </mat-label>
+
+                    <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            [attr.data-required]="f.required ? '1' : null"
+                            [placeholder]="f.placeholder || ''"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [ngModel]="formatMoney(getValue(f.key))"
+                            (ngModelChange)="onMoneyChange(f.key, $event)"
+                    />
+
+                    <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
+                </mat-form-field>
+
 
                 <!-- ✅ SWITCH -->
                 <mat-slide-toggle

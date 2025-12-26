@@ -221,3 +221,25 @@ textarea::placeholder {
   margin-top: 16px !important;
   margin-right: 16px !important;
 }
+/* ✅ option selected phải trắng */
+.mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text {
+  color: #f8fafc !important;
+  font-weight: 700;
+}
+
+/* ✅ option active (hover / focus) */
+.mat-mdc-option.mdc-list-item--activated .mdc-list-item__primary-text {
+  color: #f8fafc !important;
+  font-weight: 700;
+}
+
+/* ✅ option bình thường */
+.mat-mdc-option .mdc-list-item__primary-text {
+  color: rgba(226, 232, 240, 0.88) !important;
+}
+.mat-mdc-option.mdc-list-item--selected {
+  background: rgba(99, 102, 241, 0.22) !important; /* tím nhạt hơn */
+}
+.mat-mdc-option.mdc-list-item--activated {
+  background: rgba(148, 163, 184, 0.10) !important;
+}

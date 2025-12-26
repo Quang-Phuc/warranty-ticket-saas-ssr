@@ -118,4 +118,25 @@ export class UiDynamicFormComponent<T = any> {
     const k = this.keyStr(key);
     return this.touched() ? this.errors()[k] : null;
   }
+  formatMoney(v: any): string {
+    if (v === null || v === undefined || v === '') return '';
+    const num = Number(String(v).replace(/[^\d]/g, ''));
+    if (isNaN(num)) return '';
+    return num.toLocaleString('vi-VN');
+  }
+
+  parseMoney(v: any): number | null {
+    if (v === null || v === undefined || v === '') return null;
+    const num = Number(String(v).replace(/[^\d]/g, ''));
+    return isNaN(num) ? null : num;
+  }
+
+  onMoneyChange(key: any, raw: string) {
+    const k = this.keyStr(key);
+    const num = this.parseMoney(raw);
+
+    // ✅ lưu xuống model là NUMBER không có dấu
+    this.patch(k, num);
+  }
+
 }

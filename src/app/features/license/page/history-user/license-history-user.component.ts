@@ -130,7 +130,7 @@ export class LicenseHistoryUserComponent {
   /** ✅ Add Modal Fields (Dynamic Form) */
   addFields: FieldConfig[] = [
     { key: 'packageName', label: 'Tên gói', type: 'text', required: true },
-    { key: 'amountPaid', label: 'Số tiền', type: 'number', required: true },
+    { key: 'amountPaid', label: 'Số tiền', type: 'money', required: true },
     { key: 'purchaseDate', label: 'Ngày mua', type: 'date', required: true },
 
     {
@@ -147,7 +147,7 @@ export class LicenseHistoryUserComponent {
     {
       key: 'images',
       label: 'Ảnh giao dịch',
-      type: 'images',
+      type: 'file',
       required: false,
     },
   ];

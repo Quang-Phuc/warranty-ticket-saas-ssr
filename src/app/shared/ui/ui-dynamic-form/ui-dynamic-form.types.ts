@@ -1,6 +1,7 @@
 export type FieldType =
     | 'text'
     | 'number'
+    | 'money'     // ✅ ADD
     | 'textarea'
     | 'select'
     | 'date'
@@ -10,6 +11,7 @@ export type FieldType =
     | 'images'
     | 'file'
     | 'files';
+
 
 export interface FieldOption {
   label: string;
