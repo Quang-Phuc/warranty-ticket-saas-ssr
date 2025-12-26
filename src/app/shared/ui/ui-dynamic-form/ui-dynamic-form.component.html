@@ -1,10 +1,10 @@
 <div class="grid">
-    <div class="field" *ngFor="let f of visibleFields()">
+    <div class="field" *ngFor="let f of sortedVisibleFields()">
         <ng-container [ngSwitch]="f.type">
 
             <!-- text -->
             <mat-form-field *ngSwitchCase="'text'" appearance="outline" class="full">
-                <mat-label>{{ f.label }}</mat-label>
+                <mat-label>{{ f.label }} <span *ngIf="f.required" style="color:#f87171">*</span></mat-label>
                 <input matInput
                        [placeholder]="f.placeholder || ''"
                        [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
@@ -83,7 +83,7 @@
 
             <!-- upload: file -->
             <div *ngSwitchCase="'file'" class="full">
-                <div class="label">{{ f.label }}</div>
+                {{ f.label }} <span *ngIf="f.required" style="color:#f87171">*</span>
                 <ui-upload-field
                         mode="file"
                         [accept]="f.accept || '*/*'"

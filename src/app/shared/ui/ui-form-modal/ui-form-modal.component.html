@@ -1,17 +1,22 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
+<div class="modal">
+    <div class="modal-header">
+        <div class="title">{{ data.title }}</div>
+        <button class="icon-btn" (click)="close()" type="button">✕</button>
+    </div>
 
-<mat-dialog-content>
-    <ui-dynamic-form
-            [fields]="data.fields"
-            [model]="draft()"
-            (modelChange)="draft.set($event)"
-            (validChange)="valid.set($event)"
-    ></ui-dynamic-form>
-</mat-dialog-content>
+    <div class="modal-body">
+        <ui-dynamic-form
+                [fields]="data.fields"
+                [model]="draft()"
+                (modelChange)="draft.set($event)"
+                (validChange)="valid.set($event)"
+        ></ui-dynamic-form>
+    </div>
 
-<mat-dialog-actions align="end">
-    <button mat-button (click)="close()">Hủy</button>
-    <button mat-flat-button color="primary" (click)="submit()" [disabled]="!valid()">
-        Tạo mới
-    </button>
-</mat-dialog-actions>
+    <div class="modal-footer">
+        <button class="btn ghost" (click)="close()">Hủy</button>
+        <button class="btn primary" (click)="submit()" [disabled]="!valid()">
+            Tạo mới
+        </button>
+    </div>
+</div>

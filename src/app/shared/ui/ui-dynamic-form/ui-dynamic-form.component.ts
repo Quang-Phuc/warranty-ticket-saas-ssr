@@ -81,4 +81,14 @@ export class UiDynamicFormComponent<T = any> {
   getValue(key: any) {
     return this.model()[this.keyStr(key)];
   }
+  sortedVisibleFields = computed(() => {
+    const list = this.visibleFields();
+    const uploadTypes = new Set(['image', 'images', 'file', 'files']);
+    return [...list].sort((a, b) => {
+      const au = uploadTypes.has(a.type);
+      const bu = uploadTypes.has(b.type);
+      return Number(au) - Number(bu); // upload xuống cuối
+    });
+  });
+
 }
