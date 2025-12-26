@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {UiFormModalComponent} from '../ui-form-modal/ui-form-modal.component';
 
 /** ✅ EXPORT types để component khác import */
 export type UiTableAlign = 'left' | 'center' | 'right';
@@ -448,22 +447,5 @@ export class UiTableProComponent<T = any> {
     // TODO: implement export later (optional)
     // hiện tại chỉ để tránh build error
     console.log('[UiTablePro] Export CSV clicked');
-  }
-  openAdd() {
-    const ref = this.dialog.open(UiFormModalComponent, {
-      width: '900px',
-      maxWidth: '95vw',
-      data: {
-        title: 'Thêm mới',
-        fields: this.addFields,
-        initModel: {}
-      }
-    });
-
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-      // gọi API create
-      this.create.emit(result);
-    });
   }
 }

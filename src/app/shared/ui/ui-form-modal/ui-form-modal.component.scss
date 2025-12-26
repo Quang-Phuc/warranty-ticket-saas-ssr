@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+mat-dialog-content {
+  min-width: 680px;
+}
+
+@media (max-width: 880px) {
+  mat-dialog-content {
+    min-width: auto;
+  }
+}

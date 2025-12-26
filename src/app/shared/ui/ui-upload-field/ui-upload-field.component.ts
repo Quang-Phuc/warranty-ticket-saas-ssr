@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +20,18 @@ export class UiUploadFieldComponent {
 
   previews = signal<string[]>([]);
 
+  /** ✅ single file getter (avoid template type casting) */
+  singleFile = computed(() => {
+    const v = this.value();
+    return v instanceof File ? v : null;
+  });
+
+  /** ✅ multi files getter (avoid template type casting) */
+  multiFiles = computed(() => {
+    const v = this.value();
+    return Array.isArray(v) ? (v as File[]) : [];
+  });
+
   onPick(inputEl: HTMLInputElement) {
     const files = Array.from(inputEl.files || []);
     inputEl.value = '';
@@ -33,7 +45,6 @@ export class UiUploadFieldComponent {
       return;
     }
 
-    // multiple
     this.valueChange.emit(files);
     this.buildPreview(files);
   }
@@ -50,7 +61,6 @@ export class UiUploadFieldComponent {
       return;
     }
 
-    // multiple
     const arr = Array.isArray(v) ? [...v] : [];
     arr.splice(i, 1);
     this.valueChange.emit(arr.length ? arr : null);
@@ -69,12 +79,12 @@ export class UiUploadFieldComponent {
     }
 
     const readers = files.map(
-      f =>
-        new Promise<string>(resolve => {
-          const r = new FileReader();
-          r.onload = () => resolve(r.result as string);
-          r.readAsDataURL(f);
-        })
+        f =>
+            new Promise<string>(resolve => {
+              const r = new FileReader();
+              r.onload = () => resolve(r.result as string);
+              r.readAsDataURL(f);
+            })
     );
 
     Promise.all(readers).then(urls => this.previews.set(urls));

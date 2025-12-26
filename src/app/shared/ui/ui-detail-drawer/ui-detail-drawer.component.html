@@ -1,6 +1,97 @@
-<ui-dynamic-form
-  [fields]="fields()"
-  [model]="draft()"
-  [readonly]="!editMode()"
-  (modelChange)="draft.set($event)"
-></ui-dynamic-form>
+<div class="drawer" [class.open]="open()">
+    <div class="backdrop" (click)="onClose()"></div>
+
+    <div class="panel">
+        <div class="head">
+            <div class="title">
+                <div class="h1">{{ title() }}</div>
+                <div class="sub" *ngIf="row()">ID: {{ rowId() }}</div>
+            </div>
+
+            <button class="x" type="button" (click)="onClose()">✕</button>
+        </div>
+
+        <div class="body" *ngIf="row()">
+            <div class="toolbar">
+                <button class="btn ghost" type="button" (click)="toggleEdit()">
+                    {{ editMode() ? 'Hủy sửa' : 'Sửa' }}
+                </button>
+
+                <button class="btn primary" type="button" (click)="onSave()" [disabled]="!editMode() || saving()">
+                    {{ saving() ? 'Đang lưu...' : 'Lưu' }}
+                </button>
+            </div>
+
+            <div class="grid">
+                <div class="field" *ngFor="let f of fields()">
+                    <div class="label">
+                        {{ f.label }}
+                        <span class="tag" *ngIf="f.editable">editable</span>
+                    </div>
+
+                    <!-- read mode -->
+                    <ng-container *ngIf="!editMode() || !f.editable; else editTpl">
+                        <div class="value">
+                            <ng-container [ngSwitch]="f.type || 'text'">
+
+                                <ng-container *ngSwitchCase="'textarea'">
+                                    <div class="pre">{{ getVal(f) || '—' }}</div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'badge'">
+                                    <span class="badge">{{ getVal(f) || '—' }}</span>
+                                </ng-container>
+
+                                <ng-container *ngSwitchDefault>
+                                    {{ getVal(f) || '—' }}
+                                </ng-container>
+                            </ng-container>
+                        </div>
+                    </ng-container>
+
+                    <!-- edit mode -->
+                    <ng-template #editTpl>
+                        <ng-container [ngSwitch]="f.type || 'text'">
+
+                            <input
+                                    *ngSwitchCase="'text'"
+                                    class="input"
+                                    [placeholder]="f.placeholder || ''"
+                                    [ngModel]="getVal(f)"
+                                    (ngModelChange)="patch(keyToString(f.key), $event)"
+                            />
+
+                            <textarea
+                                    *ngSwitchCase="'textarea'"
+                                    class="input textarea"
+                                    rows="4"
+                                    [placeholder]="f.placeholder || ''"
+                                    [ngModel]="getVal(f)"
+                                    (ngModelChange)="patch(keyToString(f.key), $event)"
+                            ></textarea>
+
+                            <select
+                                    *ngSwitchCase="'select'"
+                                    class="input"
+                                    [ngModel]="getVal(f)"
+                                    (ngModelChange)="patch(keyToString(f.key), $event)"
+                            >
+                                <option *ngFor="let opt of f.options || statusOptions()" [value]="opt.value">
+                                    {{ opt.label }}
+                                </option>
+                            </select>
+
+                            <input
+                                    *ngSwitchDefault
+                                    class="input"
+                                    [placeholder]="f.placeholder || ''"
+                                    [ngModel]="getVal(f)"
+                                    (ngModelChange)="patch(keyToString(f.key), $event)"
+                            />
+                        </ng-container>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

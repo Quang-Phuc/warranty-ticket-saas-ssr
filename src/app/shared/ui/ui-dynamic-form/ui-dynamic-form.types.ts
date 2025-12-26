@@ -1,15 +1,15 @@
 export type FieldType =
-  | 'text'
-  | 'number'
-  | 'textarea'
-  | 'select'
-  | 'date'
-  | 'checkbox'
-  | 'switch'
-  | 'image'
-  | 'images'
-  | 'file'
-  | 'files';
+    | 'text'
+    | 'number'
+    | 'textarea'
+    | 'select'
+    | 'date'
+    | 'checkbox'
+    | 'switch'
+    | 'image'
+    | 'images'
+    | 'file'
+    | 'files';
 
 export interface FieldOption {
   label: string;
@@ -17,7 +17,7 @@ export interface FieldOption {
 }
 
 export interface FieldConfig<T = any> {
-  key: keyof T | string;
+  key: string;
   label: string;
   type: FieldType;
 

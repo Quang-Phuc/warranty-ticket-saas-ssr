@@ -1,13 +1,25 @@
-import {Component, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import {
-  UiTableAction, UiTableColumn, UiTableHeaderAction, UiTableProComponent
+  UiTableAction,
+  UiTableColumn,
+  UiTableHeaderAction,
+  UiTableProComponent
 } from '../../../../shared/ui/ui-table-pro/ui-table-pro.component';
+
 import {
-  DrawerField, DrawerOption, UiDetailDrawerComponent
+  DrawerField,
+  DrawerOption,
+  UiDetailDrawerComponent
 } from '../../../../shared/ui/ui-detail-drawer/ui-detail-drawer.component';
-import {LicenseHistoryEntry, LicenseService, PagedResponse} from '../../data-access/license.service';
+
+import { LicenseHistoryEntry, LicenseService, PagedResponse } from '../../data-access/license.service';
+
+// ✅ NEW: dynamic form add modal
+import { FieldConfig } from '../../../../shared/ui/ui-dynamic-form/ui-dynamic-form.types';
+import { buildFormData } from '../../../../shared/utils/build-form-data';
+import { AddModalService } from '../../../../shared/services/add-modal.service';
 
 @Component({
   selector: 'license-history-user',
@@ -32,73 +44,118 @@ export class LicenseHistoryUserComponent {
   drawerOpen = signal(false);
 
   /** ✅ Columns */
-  columns: UiTableColumn<LicenseHistoryEntry>[] = [{
-    key: 'id',
-    label: 'ID',
-    width: '90px',
-    sortable: true
-  }, {key: 'packageName', label: 'Gói', sortable: true}, {
-    key: 'amountPaid',
-    label: 'Số tiền',
-    type: 'money',
-    align: 'right',
-    sortable: true
-  }, {key: 'purchaseDate', label: 'Ngày mua', type: 'date', sortable: true}, {
-    key: 'status',
-    label: 'Trạng thái',
-    type: 'badge',
-    badgeTone: (row: LicenseHistoryEntry) => this.statusTone(row.status),
-  },];
+  columns: UiTableColumn<LicenseHistoryEntry>[] = [
+    { key: 'id', label: 'ID', width: '90px', sortable: true },
+    { key: 'packageName', label: 'Gói', sortable: true },
+    {
+      key: 'amountPaid',
+      label: 'Số tiền',
+      type: 'money',
+      align: 'right',
+      sortable: true
+    },
+    { key: 'purchaseDate', label: 'Ngày mua', type: 'date', sortable: true },
+    {
+      key: 'status',
+      label: 'Trạng thái',
+      type: 'badge',
+      badgeTone: (row: LicenseHistoryEntry) => this.statusTone(row.status),
+    },
+  ];
 
-  /** ✅ Actions */
+  /** ✅ Header Actions */
   headerActions: UiTableHeaderAction[] = [
     {
       key: 'add',
       label: 'Thêm mới',
       icon: '➕',
       tone: 'primary',
-      run: () => this.addNew(),
+      run: () => this.openAddModal(),
     },
     {
       key: 'refresh',
       label: 'Tải lại',
       icon: '🔄',
-      tone: 'default',  // ✅ optional nhưng nên thêm cho đồng nhất
+      tone: 'default',
       run: () => this.load(),
     },
   ];
 
-
-  actions: UiTableAction<LicenseHistoryEntry>[] = [{
-    key: 'detail', label: 'Xem chi tiết', icon: '👁️', run: (row) => this.openDrawer(row),
-  }, {
-    key: 'delete', label: 'Xóa', icon: '🗑️', tone: 'danger', confirm: {
-      title: 'Xác nhận xóa', message: 'Bạn chắc chắn muốn xóa lịch sử license này?', okText: 'Xóa', cancelText: 'Hủy',
-    }, run: (row) => this.deleteRow(row),
-  },];
+  /** ✅ Row Actions */
+  actions: UiTableAction<LicenseHistoryEntry>[] = [
+    {
+      key: 'detail',
+      label: 'Xem chi tiết',
+      icon: '👁️',
+      run: (row) => this.openDrawer(row),
+    },
+    {
+      key: 'delete',
+      label: 'Xóa',
+      icon: '🗑️',
+      tone: 'danger',
+      confirm: {
+        title: 'Xác nhận xóa',
+        message: 'Bạn chắc chắn muốn xóa lịch sử license này?',
+        okText: 'Xóa',
+        cancelText: 'Hủy',
+      },
+      run: (row) => this.deleteRow(row),
+    },
+  ];
 
   /** ✅ Drawer config */
-  statusOptions: DrawerOption[] = [{value: 'PENDING', label: 'Đang chờ'}, {
-    value: 'COMPLETED',
-    label: 'Hoàn tất'
-  }, {value: 'FAILED', label: 'Thất bại'}, {value: 'CANCELLED', label: 'Đã hủy'},];
+  statusOptions: DrawerOption[] = [
+    { value: 'PENDING', label: 'Đang chờ' },
+    { value: 'COMPLETED', label: 'Hoàn tất' },
+    { value: 'FAILED', label: 'Thất bại' },
+    { value: 'CANCELLED', label: 'Đã hủy' },
+  ];
 
-  drawerFields: DrawerField<LicenseHistoryEntry>[] = [{key: 'id', label: 'ID'}, {
-    key: 'packageName',
-    label: 'Gói'
-  }, {key: 'amountPaid', label: 'Số tiền', type: 'money'}, {
-    key: 'purchaseDate',
-    label: 'Ngày mua',
-    type: 'date'
-  }, {key: 'status', label: 'Trạng thái', type: 'select', editable: true}, {
-    key: 'note',
-    label: 'Ghi chú',
-    type: 'textarea',
-    editable: true,
-    placeholder: 'Nhập ghi chú cho giao dịch...'
-  },];
+  drawerFields: DrawerField<LicenseHistoryEntry>[] = [
+    { key: 'id', label: 'ID' },
+    { key: 'packageName', label: 'Gói' },
+    { key: 'amountPaid', label: 'Số tiền', type: 'money' },
+    { key: 'purchaseDate', label: 'Ngày mua', type: 'date' },
+    { key: 'status', label: 'Trạng thái', type: 'select', editable: true },
+    {
+      key: 'note',
+      label: 'Ghi chú',
+      type: 'textarea',
+      editable: true,
+      placeholder: 'Nhập ghi chú cho giao dịch...'
+    },
+  ];
 
-  constructor(private license: LicenseService) {
+  /** ✅ Add Modal Fields (Dynamic Form) */
+  addFields: FieldConfig[] = [
+    { key: 'packageName', label: 'Tên gói', type: 'text', required: true },
+    { key: 'amountPaid', label: 'Số tiền', type: 'number', required: true },
+    { key: 'purchaseDate', label: 'Ngày mua', type: 'date', required: true },
+
+    {
+      key: 'status',
+      label: 'Trạng thái',
+      type: 'select',
+      required: true,
+      options: this.statusOptions.map(x => ({ label: x.label, value: x.value }))
+    },
+
+    { key: 'note', label: 'Ghi chú', type: 'textarea' },
+
+    // ✅ IMPORTANT: upload nhiều ảnh
+    {
+      key: 'images',
+      label: 'Ảnh giao dịch',
+      type: 'images',
+      required: false,
+    },
+  ];
+
+  constructor(
+      private license: LicenseService,
+      private addModal: AddModalService
+  ) {
     this.fetch();
   }
 
@@ -106,20 +163,23 @@ export class LicenseHistoryUserComponent {
     this.loading.set(true);
 
     this.license
-      .searchLicenseHistory({
-        page: this.page(), size: this.pageSize(), keyword: this.keyword(),
-      })
-      .subscribe({
-        next: (res: PagedResponse<LicenseHistoryEntry>) => {
-          this.loading.set(false);
-          this.rows.set(res.content || []);
-          this.total.set(res.totalElements || 0);
-        }, error: () => {
-          this.loading.set(false);
-          this.rows.set([]);
-          this.total.set(0);
-        },
-      });
+        .searchLicenseHistory({
+          page: this.page(),
+          size: this.pageSize(),
+          keyword: this.keyword(),
+        })
+        .subscribe({
+          next: (res: PagedResponse<LicenseHistoryEntry>) => {
+            this.loading.set(false);
+            this.rows.set(res.content || []);
+            this.total.set(res.totalElements || 0);
+          },
+          error: () => {
+            this.loading.set(false);
+            this.rows.set([]);
+            this.total.set(0);
+          },
+        });
   }
 
   onSearch(v: string) {
@@ -153,15 +213,16 @@ export class LicenseHistoryUserComponent {
     if (!row) return;
 
     this.license
-      .updateLicenseHistory(row.id, {
-        status: patch['status'] as string, note: patch['note'] as string,
-      })
-      .subscribe({
-        next: () => {
-          this.drawerOpen.set(false);
-          this.fetch();
-        },
-      });
+        .updateLicenseHistory(row.id, {
+          status: patch['status'] as string,
+          note: patch['note'] as string,
+        })
+        .subscribe({
+          next: () => {
+            this.drawerOpen.set(false);
+            this.fetch();
+          },
+        });
   }
 
   statusTone(status: string) {
@@ -179,15 +240,34 @@ export class LicenseHistoryUserComponent {
     }
   }
 
-  /** ✅ Header Action: Thêm mới */
-  addNew() {
-    // ✅ Bạn có thể mở drawer với row empty để nhập
-    const empty: LicenseHistoryEntry = {
-      id: 'NEW', packageName: '', amountPaid: 0, purchaseDate: new Date().toISOString(), status: 'PENDING', note: '',
-    } as any;
+  /** ✅ Header Action: Thêm mới (Modal) */
+  openAddModal() {
+    const initModel = {
+      purchaseDate: new Date().toISOString().slice(0, 10), // yyyy-mm-dd cho input type=date
+      status: 'PENDING',
+      amountPaid: 0,
+    };
 
-    this.currentRow.set(empty);
-    this.drawerOpen.set(true);
+    this.addModal
+        .open('Thêm mới lịch sử license', this.addFields, initModel)
+        .afterClosed()
+        .subscribe((result: any) => {
+          if (!result) return;
+
+          // ✅ convert model -> FormData (multipart)
+          const fd = buildFormData(result, this.addFields);
+
+          this.loading.set(true);
+          this.license.createLicenseHistory(fd).subscribe({
+            next: () => {
+              this.loading.set(false);
+              this.fetch();
+            },
+            error: () => {
+              this.loading.set(false);
+            },
+          });
+        });
   }
 
   /** ✅ Header Action: Load/Refresh */
@@ -201,8 +281,6 @@ export class LicenseHistoryUserComponent {
 
     this.loading.set(true);
 
-    // ✅ Bạn cần có API deleteLicenseHistory(id)
-    // Nếu chưa có thì mình sẽ hướng dẫn thêm ngay.
     this.license.deleteLicenseHistory(row.id).subscribe({
       next: () => {
         this.loading.set(false);
@@ -213,10 +291,10 @@ export class LicenseHistoryUserComponent {
 
         // ✅ clear selected row if it was selected
         this.selectedRows = this.selectedRows.filter((x) => x.id !== row.id);
-      }, error: () => {
+      },
+      error: () => {
         this.loading.set(false);
       },
     });
   }
-
 }

@@ -1,17 +1,17 @@
 <h2 mat-dialog-title>{{ data.title }}</h2>
 
 <mat-dialog-content>
-  <ui-dynamic-form
-    [fields]="data.fields"
-    [model]="draft()"
-    (modelChange)="draft.set($event)"
-    (validChange)="valid.set($event)"
-  ></ui-dynamic-form>
+    <ui-dynamic-form
+            [fields]="data.fields"
+            [model]="draft()"
+            (modelChange)="draft.set($event)"
+            (validChange)="valid.set($event)"
+    ></ui-dynamic-form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Hủy</button>
-  <button mat-flat-button color="primary" (click)="submit()" [disabled]="!valid()">
-    Tạo mới
-  </button>
+    <button mat-button (click)="close()">Hủy</button>
+    <button mat-flat-button color="primary" (click)="submit()" [disabled]="!valid()">
+        Tạo mới
+    </button>
 </mat-dialog-actions>

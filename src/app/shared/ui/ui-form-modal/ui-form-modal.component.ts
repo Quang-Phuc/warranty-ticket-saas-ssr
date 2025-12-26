@@ -17,14 +17,15 @@ export interface UiFormModalData {
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, UiDynamicFormComponent],
   templateUrl: './ui-form-modal.component.html',
+  styleUrl: './ui-form-modal.component.scss',
 })
 export class UiFormModalComponent {
   draft = signal<Record<string, any>>({});
   valid = signal(true);
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: UiFormModalData,
-    private dialogRef: MatDialogRef<UiFormModalComponent>
+      @Inject(MAT_DIALOG_DATA) public data: UiFormModalData,
+      private dialogRef: MatDialogRef<UiFormModalComponent>
   ) {
     this.draft.set({ ...(data.initModel || {}) });
   }

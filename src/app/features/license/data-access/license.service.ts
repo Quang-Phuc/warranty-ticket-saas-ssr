@@ -41,6 +41,9 @@ export interface LicenseHistoryEntry {
   userId: number;
   status: string;
   note?: string;
+
+  // ✅ nếu backend có trả ảnh
+  images?: string[];
 }
 
 export interface PagedResponse<T> {
@@ -90,10 +93,13 @@ export class LicenseService {
     return this.api.putData<any>(`license-history/${id}`, body);
   }
 
-
   /** ✅ delete history */
   deleteLicenseHistory(id: number): Observable<any> {
     return this.api.deleteData<any>(`license-history/${id}`);
   }
 
+  /** ✅ CREATE history (multipart) */
+  createLicenseHistory(formData: FormData): Observable<any> {
+    return this.api.postMultipart<any>('license-history/create', formData);
+  }
 }

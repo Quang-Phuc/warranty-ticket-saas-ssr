@@ -37,11 +37,17 @@ export class UiDynamicFormComponent<T = any> {
   errors = signal<Record<string, string>>({});
 
   visibleFields = computed(() =>
-    this.fields().filter(f => (f.visible ? f.visible(this.model()) : true))
+      this.fields().filter(f => (f.visible ? f.visible(this.model()) : true))
   );
 
-  patch(key: string, val: any) {
-    const next = { ...this.model(), [key]: val };
+  /** ✅ convert any key to string (avoid symbol error) */
+  keyStr(key: any): string {
+    return String(key);
+  }
+
+  patch(key: any, val: any) {
+    const k = this.keyStr(key);
+    const next = { ...this.model(), [k]: val };
     this.modelChange.emit(next);
     this.validateAll(next);
   }
@@ -50,16 +56,17 @@ export class UiDynamicFormComponent<T = any> {
     const errs: Record<string, string> = {};
 
     for (const f of this.visibleFields()) {
-      const v = m?.[`${f.key}`];
+      const k = this.keyStr(f.key);
+      const v = m?.[k];
 
       if (f.required && (v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0))) {
-        errs[`${f.key}`] = 'Trường này bắt buộc';
+        errs[k] = 'Trường này bắt buộc';
         continue;
       }
 
       if (f.validator) {
         const msg = f.validator(v, m);
-        if (msg) errs[`${f.key}`] = msg;
+        if (msg) errs[k] = msg;
       }
     }
 
@@ -68,6 +75,10 @@ export class UiDynamicFormComponent<T = any> {
   }
 
   errorOf(key: any) {
-    return this.errors()[`${key}`];
+    return this.errors()[this.keyStr(key)];
+  }
+
+  getValue(key: any) {
+    return this.model()[this.keyStr(key)];
   }
 }
