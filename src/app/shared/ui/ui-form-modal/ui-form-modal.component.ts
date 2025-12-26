@@ -1,7 +1,6 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 
 import { UiDynamicFormComponent } from '../ui-dynamic-form/ui-dynamic-form.component';
 import { FieldConfig } from '../ui-dynamic-form/ui-dynamic-form.types';
@@ -15,11 +14,11 @@ export interface UiFormModalData {
 @Component({
   selector: 'ui-form-modal',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, UiDynamicFormComponent],
+  imports: [CommonModule, MatDialogModule, UiDynamicFormComponent],
   templateUrl: './ui-form-modal.component.html',
   styleUrl: './ui-form-modal.component.scss',
 })
-export class UiFormModalComponent {
+export class UiFormModalComponent implements AfterViewInit {
   draft = signal<Record<string, any>>({});
   valid = signal(true);
 
@@ -28,6 +27,15 @@ export class UiFormModalComponent {
       private dialogRef: MatDialogRef<UiFormModalComponent>
   ) {
     this.draft.set({ ...(data.initModel || {}) });
+  }
+
+  /** ✅ Auto focus vào field required đầu tiên */
+  ngAfterViewInit() {
+    setTimeout(() => {
+      // tìm field đầu tiên có data-required="1"
+      const el = document.querySelector('.modal-body [data-required="1"]') as HTMLElement | null;
+      el?.focus();
+    }, 80);
   }
 
   close() {

@@ -1,10 +1,11 @@
 .grid {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .field {
+  min-width: 0; /* ✅ quan trọng để không tràn grid */
   display: flex;
   flex-direction: column;
 }
@@ -13,11 +14,10 @@
   grid-column: span 2;
 }
 
-/* label custom */
 .label {
   font-size: 13px;
-  color: rgba(226, 232, 240, 0.8);
-  margin: 0 0 6px 2px;
+  color: rgba(226, 232, 240, 0.78);
+  margin: 0 0 8px 2px;
 }
 
 .err {
@@ -26,29 +26,62 @@
   color: #f87171;
 }
 
-/* Angular Material override cho dark */
+/* ✅ Material dark input */
 :host ::ng-deep .mat-mdc-form-field {
   width: 100%;
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
   background: rgba(148, 163, 184, 0.08);
-  border-radius: 12px;
+  border-radius: 14px;
+  transition: 0.2s;
+}
+
+:host ::ng-deep .mat-mdc-form-field:hover .mat-mdc-text-field-wrapper {
+  background: rgba(148, 163, 184, 0.11);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
 :host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading,
 :host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__notch,
 :host ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
-  border-color: rgba(148, 163, 184, 0.28);
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  transition: 0.2s;
 }
 
+/* ✅ focus border glow */
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+:host ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: rgba(99, 102, 241, 0.85) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* ✅ text */
 :host ::ng-deep .mat-mdc-form-field-label,
+:host ::ng-deep .mat-mdc-floating-label,
 :host ::ng-deep input,
 :host ::ng-deep textarea {
   color: #e2e8f0 !important;
 }
 
+/* ✅ placeholder nổi hơn */
+:host ::ng-deep input::placeholder,
+:host ::ng-deep textarea::placeholder {
+  color: rgba(226, 232, 240, 0.55);
+}
+
+/* checkbox switch */
+:host ::ng-deep .mdc-label {
+  color: #e2e8f0;
+}
+
+/* responsive */
 @media (max-width: 880px) {
-  .grid { grid-template-columns: 1fr; }
-  .full { grid-column: span 1; }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .full {
+    grid-column: span 1;
+  }
 }

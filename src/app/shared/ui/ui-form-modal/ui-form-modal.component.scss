@@ -1,77 +1,95 @@
 .modal {
-  width: min(920px, 95vw);
-  border-radius: 16px;
-  background: #0f172a; // dark
+  width: min(980px, 95vw);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #0b1220 0%, #0b1328 100%);
   color: #e2e8f0;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.65);
   overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 18px 20px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 
   .title {
     font-size: 18px;
     font-weight: 700;
+    letter-spacing: 0.2px;
   }
 
   .icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    background: transparent;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(148, 163, 184, 0.06);
     color: #e2e8f0;
     cursor: pointer;
     transition: 0.2s;
 
     &:hover {
       background: rgba(148, 163, 184, 0.12);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
     }
   }
 }
 
+/* ✅ fix sát viền: tăng padding + không để grid tràn */
 .modal-body {
-  padding: 18px;
+  padding: 22px 24px 18px;
+  max-height: calc(90vh - 140px);
+  overflow: auto;
 }
 
+/* ✅ footer đẹp hơn */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 16px 22px;
   border-top: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(2, 6, 23, 0.25);
 }
 
+/* ✅ buttons */
 .btn {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 12px;
-  font-weight: 600;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-weight: 700;
   cursor: pointer;
   border: none;
+  transition: 0.2s;
 
   &.ghost {
-    background: transparent;
+    background: rgba(148, 163, 184, 0.06);
     border: 1px solid rgba(148, 163, 184, 0.22);
     color: #e2e8f0;
 
     &:hover {
       background: rgba(148, 163, 184, 0.12);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
     }
   }
 
   &.primary {
-    background: #6366f1; // giống theme tím
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     color: white;
 
+    &:hover {
+      box-shadow: 0 14px 32px rgba(99, 102, 241, 0.3);
+      transform: translateY(-1px);
+    }
+
     &:disabled {
-      opacity: 0.45;
+      opacity: 0.4;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
   }
 }

@@ -1,138 +1,212 @@
 <div class="grid">
-    <div class="field" *ngFor="let f of sortedVisibleFields()">
-        <ng-container [ngSwitch]="f.type">
+    <ng-container *ngFor="let f of sortedVisibleFields()">
+        <div class="field">
 
-            <!-- text -->
-            <mat-form-field *ngSwitchCase="'text'" appearance="outline" class="full">
-                <mat-label>{{ f.label }} <span *ngIf="f.required" style="color:#f87171">*</span></mat-label>
-                <input matInput
-                       [placeholder]="f.placeholder || ''"
-                       [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                       [ngModel]="getValue(f.key)"
-                       (ngModelChange)="patch(f.key, $event)"
-                />
-                <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
-            </mat-form-field>
+            <ng-container [ngSwitch]="f.type">
 
-            <!-- number -->
-            <mat-form-field *ngSwitchCase="'number'" appearance="outline" class="full">
-                <mat-label>{{ f.label }}</mat-label>
-                <input matInput type="number"
-                       [placeholder]="f.placeholder || ''"
-                       [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                       [ngModel]="getValue(f.key)"
-                       (ngModelChange)="patch(f.key, $event)"
-                />
-                <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
-            </mat-form-field>
+                <!-- ✅ TEXT -->
+                <mat-form-field *ngSwitchCase="'text'" appearance="outline">
+                    <mat-label>
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </mat-label>
 
-            <!-- textarea -->
-            <mat-form-field *ngSwitchCase="'textarea'" appearance="outline" class="full">
-                <mat-label>{{ f.label }}</mat-label>
-                <textarea matInput rows="4"
-                          [placeholder]="f.placeholder || ''"
-                          [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                          [ngModel]="getValue(f.key)"
-                          (ngModelChange)="patch(f.key, $event)"
-                ></textarea>
-                <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
-            </mat-form-field>
+                    <input
+                            matInput
+                            [attr.data-required]="f.required ? '1' : null"
+                            [placeholder]="f.placeholder || ''"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [ngModel]="getValue(f.key)"
+                            (ngModelChange)="patch(f.key, $event)"
+                    />
 
-            <!-- select -->
-            <mat-form-field *ngSwitchCase="'select'" appearance="outline" class="full">
-                <mat-label>{{ f.label }}</mat-label>
-                <mat-select
+                    <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
+                </mat-form-field>
+
+                <!-- ✅ NUMBER -->
+                <mat-form-field *ngSwitchCase="'number'" appearance="outline">
+                    <mat-label>
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </mat-label>
+
+                    <input
+                            matInput
+                            type="number"
+                            [attr.data-required]="f.required ? '1' : null"
+                            [placeholder]="f.placeholder || ''"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [ngModel]="getValue(f.key)"
+                            (ngModelChange)="patch(f.key, $event)"
+                    />
+
+                    <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
+                </mat-form-field>
+
+                <!-- ✅ TEXTAREA -->
+                <mat-form-field *ngSwitchCase="'textarea'" appearance="outline" class="full">
+                    <mat-label>
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </mat-label>
+
+                    <textarea
+                            matInput
+                            rows="4"
+                            [attr.data-required]="f.required ? '1' : null"
+                            [placeholder]="f.placeholder || ''"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [ngModel]="getValue(f.key)"
+                            (ngModelChange)="patch(f.key, $event)"
+                    ></textarea>
+
+                    <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
+                </mat-form-field>
+
+                <!-- ✅ DATE -->
+                <mat-form-field *ngSwitchCase="'date'" appearance="outline">
+                    <mat-label>
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </mat-label>
+
+                    <input
+                            matInput
+                            type="date"
+                            [attr.data-required]="f.required ? '1' : null"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [ngModel]="getValue(f.key)"
+                            (ngModelChange)="patch(f.key, $event)"
+                    />
+
+                    <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
+                </mat-form-field>
+
+                <!-- ✅ SELECT -->
+                <mat-form-field *ngSwitchCase="'select'" appearance="outline">
+                    <mat-label>
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </mat-label>
+
+                    <mat-select
+                            [attr.data-required]="f.required ? '1' : null"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [value]="getValue(f.key)"
+                            (selectionChange)="patch(f.key, $event.value)"
+                    >
+                        <mat-option [value]="null">-- Chọn --</mat-option>
+                        <mat-option *ngFor="let opt of f.options || []" [value]="opt.value">
+                            {{ opt.label }}
+                        </mat-option>
+                    </mat-select>
+
+                    <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
+                </mat-form-field>
+
+                <!-- ✅ CHECKBOX -->
+                <mat-checkbox
+                        *ngSwitchCase="'checkbox'"
                         [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                        [value]="getValue(f.key)"
-                        (selectionChange)="patch(f.key, $event.value)"
+                        [ngModel]="getValue(f.key)"
+                        (ngModelChange)="patch(f.key, $event)"
                 >
-                    <mat-option [value]="null">-- Chọn --</mat-option>
-                    <mat-option *ngFor="let opt of f.options || []" [value]="opt.value">{{ opt.label }}</mat-option>
-                </mat-select>
-                <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
-            </mat-form-field>
+                    {{ f.label }}
+                    <span *ngIf="f.required" style="color:#f87171">*</span>
+                </mat-checkbox>
 
-            <!-- date -->
-            <mat-form-field *ngSwitchCase="'date'" appearance="outline" class="full">
-                <mat-label>{{ f.label }}</mat-label>
-                <input matInput type="date"
-                       [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                       [ngModel]="getValue(f.key)"
-                       (ngModelChange)="patch(f.key, $event)"
-                />
-                <mat-error *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</mat-error>
-            </mat-form-field>
-
-            <!-- checkbox -->
-            <mat-checkbox *ngSwitchCase="'checkbox'"
-                          [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                          [ngModel]="getValue(f.key)"
-                          (ngModelChange)="patch(f.key, $event)"
-            >
-                {{ f.label }}
-            </mat-checkbox>
-
-            <!-- switch -->
-            <mat-slide-toggle *ngSwitchCase="'switch'"
-                              [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                              [ngModel]="getValue(f.key)"
-                              (ngModelChange)="patch(f.key, $event)"
-            >
-                {{ f.label }}
-            </mat-slide-toggle>
-
-            <!-- upload: file -->
-            <div *ngSwitchCase="'file'" class="full">
-                {{ f.label }} <span *ngIf="f.required" style="color:#f87171">*</span>
-                <ui-upload-field
-                        mode="file"
-                        [accept]="f.accept || '*/*'"
+                <!-- ✅ SWITCH -->
+                <mat-slide-toggle
+                        *ngSwitchCase="'switch'"
                         [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                        [value]="getValue(f.key)"
-                        (valueChange)="patch(f.key, $event)"
-                ></ui-upload-field>
-                <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
-            </div>
+                        [ngModel]="getValue(f.key)"
+                        (ngModelChange)="patch(f.key, $event)"
+                >
+                    {{ f.label }}
+                    <span *ngIf="f.required" style="color:#f87171">*</span>
+                </mat-slide-toggle>
 
-            <!-- upload: files -->
-            <div *ngSwitchCase="'files'" class="full">
-                <div class="label">{{ f.label }}</div>
-                <ui-upload-field
-                        mode="files"
-                        [accept]="f.accept || '*/*'"
-                        [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                        [value]="getValue(f.key)"
-                        (valueChange)="patch(f.key, $event)"
-                ></ui-upload-field>
-                <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
-            </div>
+                <!-- ✅ UPLOAD FILE -->
+                <div *ngSwitchCase="'file'" class="full">
+                    <div class="label">
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </div>
 
-            <!-- upload: image -->
-            <div *ngSwitchCase="'image'" class="full">
-                <div class="label">{{ f.label }}</div>
-                <ui-upload-field
-                        mode="image"
-                        accept="image/*"
-                        [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                        [value]="getValue(f.key)"
-                        (valueChange)="patch(f.key, $event)"
-                ></ui-upload-field>
-                <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
-            </div>
+                    <ui-upload-field
+                            mode="file"
+                            [accept]="f.accept || '*/*'"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [value]="getValue(f.key)"
+                            (valueChange)="patch(f.key, $event)"
+                    ></ui-upload-field>
 
-            <!-- upload: images -->
-            <div *ngSwitchCase="'images'" class="full">
-                <div class="label">{{ f.label }}</div>
-                <ui-upload-field
-                        mode="images"
-                        accept="image/*"
-                        [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
-                        [value]="getValue(f.key)"
-                        (valueChange)="patch(f.key, $event)"
-                ></ui-upload-field>
-                <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
-            </div>
+                    <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
+                </div>
 
-        </ng-container>
-    </div>
+                <!-- ✅ UPLOAD FILES -->
+                <div *ngSwitchCase="'files'" class="full">
+                    <div class="label">
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </div>
+
+                    <ui-upload-field
+                            mode="files"
+                            [accept]="f.accept || '*/*'"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [value]="getValue(f.key)"
+                            (valueChange)="patch(f.key, $event)"
+                    ></ui-upload-field>
+
+                    <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
+                </div>
+
+                <!-- ✅ UPLOAD IMAGE -->
+                <div *ngSwitchCase="'image'" class="full">
+                    <div class="label">
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </div>
+
+                    <ui-upload-field
+                            mode="image"
+                            accept="image/*"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [value]="getValue(f.key)"
+                            (valueChange)="patch(f.key, $event)"
+                    ></ui-upload-field>
+
+                    <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
+                </div>
+
+                <!-- ✅ UPLOAD IMAGES -->
+                <div *ngSwitchCase="'images'" class="full">
+                    <div class="label">
+                        {{ f.label }}
+                        <span *ngIf="f.required" style="color:#f87171">*</span>
+                    </div>
+
+                    <ui-upload-field
+                            mode="images"
+                            accept="image/*"
+                            [disabled]="readonly() || (f.disabled?.(model()) ?? false)"
+                            [value]="getValue(f.key)"
+                            (valueChange)="patch(f.key, $event)"
+                    ></ui-upload-field>
+
+                    <div class="err" *ngIf="errorOf(f.key)">{{ errorOf(f.key) }}</div>
+                </div>
+
+                <!-- ✅ DEFAULT -->
+                <div *ngSwitchDefault class="full">
+                    <div class="label">{{ f.label }}</div>
+                    <div style="opacity:0.6; font-size:12px;">
+                        Unsupported field type: {{ f.type }}
+                    </div>
+                </div>
+
+            </ng-container>
+        </div>
+    </ng-container>
 </div>
